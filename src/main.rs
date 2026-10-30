@@ -33,9 +33,10 @@ fn pen_point(circles: &[Circle], time: f32) -> Point {
 
 fn draw_spirograph(circles: &[Circle], time: f32) {
     let scale = 20.0; // this should be a parameter or use a camera to scale things
+    let draw_seconds = 3.0;
+    let steps = 1000;
 
     let mut prev_point = pen_point(circles, 0.0);
-    let steps = 1000;
 
     // TAU / gcd(all speeds)
     let period = TAU
@@ -46,7 +47,8 @@ fn draw_spirograph(circles: &[Circle], time: f32) {
             .unwrap_or(1) as f32;
 
     for t in (0..=steps).map(|i| i as f32 / steps as f32 * period) {
-        let pen_point = pen_point(circles, t);
+        let progress = (time / draw_seconds).min(1.0);
+        let pen_point = pen_point(circles, t * progress);
 
         draw_line(
             prev_point.x * scale + screen_width() / 2.0,
