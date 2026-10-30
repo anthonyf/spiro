@@ -10,6 +10,9 @@ Every spirograph is a sum of spinning circles, each with a radius, speed, and
 phase. `ring`, `wheel`, and `chain` are sugar; the renderer only sees a list of
 circles per layer.
 
+![Spirograph glossary: the toy (ring, wheel, hole, pen) next to the same
+curve drawn as two spinning arms](docs/glossary.svg)
+
 ## Syntax sketch
 
 ```
