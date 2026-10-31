@@ -78,8 +78,8 @@ fn fractal(
     arms
 }
 
-fn draw_spirograph(arms: &[Arm], time: f32, scale: f32) {
-    let draw_seconds = 3.0;
+fn draw_spirograph(ring_radius: f32, arms: &[Arm], time: f32, scale: f32) {
+    let draw_seconds = 10.0;
 
     // TAU / gcd(all speeds)
     let period = TAU
@@ -123,8 +123,15 @@ fn draw_spirograph(arms: &[Arm], time: f32, scale: f32) {
     // draw the individual arms, actual size
     let points = pen_points(arms, period * progress);
     let mut prev_point = Point { x: 0.0, y: 0.0 };
-    for (_arm, point) in arms.iter().zip(points.iter()) {
-        //draw_circle_lines(prev_point.x, prev_point.y, arm.length, thickness, RED);
+    let mut prev_radius = ring_radius;
+    draw_circle_lines(prev_point.x, prev_point.y, ring_radius, thickness, BLUE);
+
+    for (arm, point) in arms.iter().zip(points.iter()) {
+        // draw the wheel
+        let wheel_radius = (arm.length - prev_radius).abs();
+        draw_circle_lines(point.x, point.y, wheel_radius, thickness, RED);
+
+        // draw the arm
         draw_line(
             prev_point.x,
             prev_point.y,
@@ -134,6 +141,7 @@ fn draw_spirograph(arms: &[Arm], time: f32, scale: f32) {
             GREEN,
         );
         prev_point = *point;
+        prev_radius = wheel_radius;
     }
 }
 
@@ -163,7 +171,7 @@ async fn main() {
 
         clear_background(WHITE);
 
-        draw_spirograph(&arms, time, scale);
+        draw_spirograph(45.0, &arms, time, scale);
 
         next_frame().await
     }
