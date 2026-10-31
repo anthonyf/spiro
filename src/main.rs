@@ -89,7 +89,6 @@ fn _classic() -> Spirograph {
 }
 
 fn fractal(
-    ring_radius: f32,
     start_length: f32,
     start_speed: i32,
     next_length_multiplyer: f32,
@@ -109,6 +108,8 @@ fn fractal(
         length *= next_length_multiplyer;
         speed *= next_speed_multiplyer;
     }
+
+    let ring_radius = start_length / (1.0 + next_length_multiplyer);
 
     Spirograph { ring_radius, arms }
 }
@@ -165,7 +166,7 @@ fn draw_spirograph(spiro: &Spirograph, time: f32, scale: f32) {
 
 #[macroquad::main("Spirograph")]
 async fn main() {
-    let spiro = fractal(45.0, 60.0, -3, 1.0 / 3.0, -4, 7);
+    let spiro = fractal(60.0, -3, 1.0 / 3.0, -4, 7);
 
     let mut time = 0.0;
 
