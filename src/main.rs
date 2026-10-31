@@ -8,6 +8,37 @@ struct Arm {
     phase: f32,
 }
 
+#[derive(Debug)]
+struct Spirograph {
+    ring_radius: f32,
+    arms: Vec<Arm>,
+}
+
+impl Spirograph {
+    fn period(&self) -> f32 {
+        TAU / self
+            .arms
+            .iter()
+            .map(|a| a.speed.unsigned_abs())
+            .reduce(gcd)
+            .unwrap_or(1) as f32
+    }
+
+    fn distance(&self) -> f32 {
+        self.period()
+            * self
+                .arms
+                .iter()
+                .map(|a| a.length.abs() * a.speed.unsigned_abs() as f32)
+                .sum::<f32>()
+    }
+
+    fn reach(&self) -> f32 {
+        self.ring_radius
+            .max(self.arms.iter().map(|a| a.length.abs()).sum::<f32>())
+    }
+}
+
 #[derive(Debug, Clone, Copy)]
 struct Point {
     x: f32,
@@ -39,28 +70,32 @@ fn pen_point(arms: &[Arm], time: f32) -> Point {
         .unwrap_or(Point { x: 0.0, y: 0.0 })
 }
 
-fn _classic() -> Vec<Arm> {
-    vec![
-        Arm {
-            length: 60.0,
-            speed: 3,
-            ..Default::default()
-        },
-        Arm {
-            length: 28.8,
-            speed: -5,
-            ..Default::default()
-        },
-    ]
+fn _classic() -> Spirograph {
+    Spirograph {
+        ring_radius: 96.0,
+        arms: vec![
+            Arm {
+                length: 60.0,
+                speed: 3,
+                ..Default::default()
+            },
+            Arm {
+                length: 28.8,
+                speed: -5,
+                ..Default::default()
+            },
+        ],
+    }
 }
 
 fn fractal(
+    ring_radius: f32,
     start_length: f32,
     start_speed: i32,
     next_length_multiplyer: f32,
     next_speed_multiplyer: i32,
     iterations: u32,
-) -> Vec<Arm> {
+) -> Spirograph {
     let mut arms = Vec::new();
     let mut length = start_length;
     let mut speed = start_speed;
@@ -75,31 +110,14 @@ fn fractal(
         speed *= next_speed_multiplyer;
     }
 
-    arms
+    Spirograph { ring_radius, arms }
 }
 
-fn draw_spirograph(ring_radius: f32, arms: &[Arm], time: f32, scale: f32) {
+fn draw_spirograph(spiro: &Spirograph, time: f32, scale: f32) {
+    let Spirograph { ring_radius, arms } = spiro;
     let draw_seconds = 10.0;
-
-    // TAU / gcd(all speeds)
-    let period = TAU
-        / arms
-            .iter()
-            .map(|a| a.speed.unsigned_abs())
-            .reduce(gcd)
-            .unwrap_or(1) as f32;
-
-    // distance (pixels) ≈ period × (sum of length × |speed|) × scale
-    // steps             ≈ distance / 2        (about 2 pixels per segment)
-    let distance = (period
-        * arms
-            .iter()
-            .map(|a| a.length.abs() * a.speed.unsigned_abs() as f32)
-            .sum::<f32>()
-        * scale) as u32;
-
-    let steps = (distance / 2).max(1);
-
+    let steps = ((spiro.distance() * scale) as u32 / 2).max(1);
+    let period = spiro.period();
     let thickness = 3.0 / scale;
 
     let mut prev_point = pen_point(arms, 0.0);
@@ -123,8 +141,8 @@ fn draw_spirograph(ring_radius: f32, arms: &[Arm], time: f32, scale: f32) {
     // draw the individual arms, actual size
     let points = pen_points(arms, period * progress);
     let mut prev_point = Point { x: 0.0, y: 0.0 };
-    let mut prev_radius = ring_radius;
-    draw_circle_lines(prev_point.x, prev_point.y, ring_radius, thickness, BLUE);
+    let mut prev_radius = *ring_radius;
+    draw_circle_lines(prev_point.x, prev_point.y, *ring_radius, thickness, BLUE);
 
     for (arm, point) in arms.iter().zip(points.iter()) {
         // draw the wheel
@@ -147,11 +165,11 @@ fn draw_spirograph(ring_radius: f32, arms: &[Arm], time: f32, scale: f32) {
 
 #[macroquad::main("Spirograph")]
 async fn main() {
-    let arms = fractal(60.0, -3, 1.0 / 3.0, -4, 7);
+    let spiro = fractal(45.0, 60.0, -3, 1.0 / 3.0, -4, 7);
 
     let mut time = 0.0;
 
-    let reach = arms.iter().map(|c| c.length.abs()).sum::<f32>();
+    let reach = spiro.reach();
 
     loop {
         time += get_frame_time();
@@ -171,7 +189,7 @@ async fn main() {
 
         clear_background(WHITE);
 
-        draw_spirograph(45.0, &arms, time, scale);
+        draw_spirograph(&spiro, time, scale);
 
         next_frame().await
     }
