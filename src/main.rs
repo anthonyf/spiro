@@ -89,16 +89,6 @@ fn draw_spirograph(circles: &[Circle], time: f32, px_per_unit: f32) {
 
 #[macroquad::main("Spirograph")]
 async fn main() {
-    let scale = 20.0;
-
-    let camera = Camera2D {
-        zoom: vec2(scale / screen_width() * 2.0, scale / screen_height() * 2.0),
-        target: vec2(0.0, 0.0),
-        ..Default::default()
-    };
-
-    set_camera(&camera);
-
     let circles = vec![
         Circle {
             radius: 1.0,
@@ -119,8 +109,23 @@ async fn main() {
 
     let mut time = 0.0;
 
+    let reach = circles.iter().map(|c| c.radius.abs()).sum::<f32>();
+
     loop {
         time += get_frame_time();
+
+        let room = screen_width().min(screen_height()) / 2.0;
+        let margin = room * 0.1;
+
+        let scale = (room - margin) / reach;
+
+        let camera = Camera2D {
+            zoom: vec2(scale / screen_width() * 2.0, scale / screen_height() * 2.0),
+            target: vec2(0.0, 0.0),
+            ..Default::default()
+        };
+
+        set_camera(&camera);
 
         clear_background(WHITE);
 
