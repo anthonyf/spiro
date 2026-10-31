@@ -242,13 +242,13 @@ mod tests {
     }
 
     macro_rules! assert_close {
-        ($a:expr, $b:expr) => {
+        ($a:expr, $b:expr) => {{
             let sa = stringify!($a);
             let sb = stringify!($b);
             let a = $a;
             let b = $b;
             assert!(close(a, b), "{sa} = {a} != {sb} = {b}");
-        };
+        }};
     }
 
     #[test]
