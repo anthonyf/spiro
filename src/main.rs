@@ -37,6 +37,19 @@ impl Spirograph {
         self.ring_radius
             .max(self.arms.iter().map(|a| a.length.abs()).sum::<f32>())
     }
+
+    fn wheel_sizes(&self) -> Vec<f32> {
+        let mut sizes = Vec::new();
+        let mut prev_radius = self.ring_radius;
+
+        for arm in &self.arms {
+            let wheel_radius = (arm.length - prev_radius).abs();
+            sizes.push(wheel_radius);
+            prev_radius = wheel_radius;
+        }
+
+        sizes
+    }
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -142,13 +155,13 @@ fn draw_spirograph(spiro: &Spirograph, time: f32, scale: f32) {
     // draw the individual arms, actual size
     let points = pen_points(arms, period * progress);
     let mut prev_point = Point { x: 0.0, y: 0.0 };
-    let mut prev_radius = *ring_radius;
     draw_circle_lines(prev_point.x, prev_point.y, *ring_radius, thickness, BLUE);
 
-    for (arm, point) in arms.iter().zip(points.iter()) {
+    let wheel_sizes = spiro.wheel_sizes();
+
+    for (point, wheel_radius) in points.iter().zip(wheel_sizes.iter()) {
         // draw the wheel
-        let wheel_radius = (arm.length - prev_radius).abs();
-        draw_circle_lines(point.x, point.y, wheel_radius, thickness, RED);
+        draw_circle_lines(point.x, point.y, *wheel_radius, thickness, RED);
 
         // draw the arm
         draw_line(
@@ -160,7 +173,6 @@ fn draw_spirograph(spiro: &Spirograph, time: f32, scale: f32) {
             GREEN,
         );
         prev_point = *point;
-        prev_radius = wheel_radius;
     }
 }
 
@@ -193,5 +205,147 @@ async fn main() {
         draw_spirograph(&spiro, time, scale);
 
         next_frame().await
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_gcd_teeth_example() {
+        assert_eq!(gcd(96, 36), 12);
+    }
+
+    #[test]
+    fn test_gcd_fold_reduce_start_from_zero() {
+        assert_eq!(gcd(0, 5), 5);
+    }
+
+    fn spiro_from_speeds(speeds: &[i32]) -> Spirograph {
+        let arms = speeds
+            .iter()
+            .map(|&speed| Arm {
+                length: 1.0,
+                speed,
+                ..Default::default()
+            })
+            .collect();
+        Spirograph {
+            ring_radius: 1.0,
+            arms,
+        }
+    }
+
+    fn close(a: f32, b: f32) -> bool {
+        (a - b).abs() < 1e-4
+    }
+
+    macro_rules! assert_close {
+        ($a:expr, $b:expr) => {
+            let sa = stringify!($a);
+            let sb = stringify!($b);
+            let a = $a;
+            let b = $b;
+            assert!(close(a, b), "{sa} = {a} != {sb} = {b}");
+        };
+    }
+
+    #[test]
+    fn test_period_basic_case() {
+        let spiro = spiro_from_speeds(&[1, 2, 3]);
+        assert_close!(spiro.period(), TAU);
+    }
+
+    #[test]
+    fn test_period_with_gcd_isnt_one() {
+        let spiro = spiro_from_speeds(&[2, 4]);
+        assert_close!(spiro.period(), TAU / 2.0);
+    }
+
+    #[test]
+    fn test_period_as_u32_bug() {
+        let spiro = spiro_from_speeds(&[3, -1]);
+        assert_close!(spiro.period(), TAU);
+    }
+
+    #[test]
+    fn test_fractal_ring() {
+        let spiro = fractal(60.0, -3, 1.0 / 3.0, -4, 7);
+        assert_close!(spiro.ring_radius, 45.0);
+    }
+
+    #[test]
+    fn test_reach_classic() {
+        let spiro = _classic();
+        assert_close!(spiro.reach(), 96.0);
+    }
+
+    #[test]
+    fn test_reach_fractal() {
+        let spiro = fractal(60.0, -3, 1.0 / 3.0, -4, 7);
+        assert_close!(spiro.reach(), 90.0 * (1.0 - (1.0_f32 / 3.0).powi(7)));
+    }
+
+    #[test]
+    fn test_wheel_sizes_outside_case() {
+        let spiro = fractal(60.0, -3, 1.0 / 3.0, -4, 7);
+        let wheel_sizes = spiro.wheel_sizes();
+        assert_eq!(wheel_sizes.len(), spiro.arms.len());
+        assert_close!(wheel_sizes[0], 15.0);
+        assert_close!(wheel_sizes[1], 5.0);
+        assert_close!(wheel_sizes[2], 5.0 / 3.0);
+    }
+
+    #[test]
+    fn test_wheel_sizes_inside_case() {
+        let spiro = _classic();
+        let wheel_sizes = spiro.wheel_sizes();
+        assert_eq!(wheel_sizes.len(), spiro.arms.len());
+        assert_close!(wheel_sizes[0], 36.0);
+        assert_close!(wheel_sizes[1], 7.2);
+    }
+
+    #[test]
+    fn test_pen_point_basic_case() {
+        let spiro = Spirograph {
+            ring_radius: 1.0,
+            arms: vec![
+                Arm {
+                    length: 1.0,
+                    speed: 1,
+                    phase: 0.0,
+                },
+                Arm {
+                    length: 2.0,
+                    speed: -2,
+                    phase: 1.0,
+                },
+                Arm {
+                    length: 3.0,
+                    speed: -2,
+                    phase: 2.0,
+                },
+            ],
+        };
+        let point = pen_point(&spiro.arms, 0.0);
+        assert_close!(point.x, 0.832164);
+        assert_close!(point.y, 4.4108343);
+    }
+
+    #[test]
+    fn test_pen_points_with_t() {
+        let spiro = Spirograph {
+            ring_radius: 1.0,
+            arms: vec![Arm {
+                length: 1.0,
+                speed: 1,
+                phase: 0.0,
+            }],
+        };
+        let points = pen_points(&spiro.arms, TAU / 4.0);
+        assert_eq!(points.len(), 1);
+        assert_close!(points[0].x, 0.0);
+        assert_close!(points[0].y, 1.0);
     }
 }
