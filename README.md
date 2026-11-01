@@ -115,6 +115,12 @@ The types can't express these, so they are reported as errors:
 - [ ] Day 3: colors, SVG/PNG export. Stretch: web build, `let`.
       (The document model with layers, pens and `fractal` is already done in
       Rust; `toy` is still to do.)
+- [ ] Later: move the evaluator's checks into types, so invalid values
+      can't be built. For example, `NonZeroU32` for the toy's wheel (which
+      removes `WheelIsZero`), and a `Gears` type whose constructor checks
+      wheel < ring. The same applies to other rules (a non-zero speed, a
+      length multiplier that isn't −1). This needs modules, because a
+      private field only protects a value outside its own module.
 
 Freeze the syntax before starting: no functions or type system.
 
