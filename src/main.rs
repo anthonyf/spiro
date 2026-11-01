@@ -1,4 +1,5 @@
 mod document;
+mod lexer;
 mod render;
 mod spirograph;
 
