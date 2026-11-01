@@ -39,12 +39,14 @@ The evaluator turns every shape into a ring plus a list of arms, and the
 renderer only ever sees that. How the drawing is viewed (for example, showing
 the arms and wheels) is a setting of the viewer, not part of the document.
 
-## Syntax sketch (draft)
+## Syntax
 
 ```
+background white
+
 # The same classic curve, written two ways
 layer {
-  pen teal 1.5
+  pen x008080 1.5             # teal, as a hex colour
   classic {
     ring 96
     arm 60 speed 3
@@ -53,13 +55,13 @@ layer {
 }
 
 layer {
-  pen teal 1.5
+  pen x008080 1.5
   toy ring 96 wheel 36 hole 28.8
 }
 
 # A Coding Train style fractal: 7 arms
 layer {
-  pen crimson 0.5
+  pen red 0.5
   fractal {
     length 60                 # the first arm...
     speed -3
@@ -84,18 +86,32 @@ The types can't express these, so they are reported as errors:
 - Every shape needs at least one arm with a non-zero speed, or the curve has
   no period. (Not checked yet.)
 
-### Open questions before freezing the syntax
+### Syntax decisions
 
-1. **Fractions:** is `1/3` one number, or a number, a `/`, and a number?
-2. **Negative numbers:** is `-4` one token, or a minus sign and `4`?
-3. **Comments vs. colours:** comments start with `#`. If hex colours like
-   `#fdf6e3` are allowed, are they always quoted?
-4. **Colour names:** which names are allowed?
-5. **Background and canvas size:** the document has neither yet. Are they
-   needed, perhaps only for export?
-6. **`toy` hole:** a distance from the wheel's centre (`hole 28.8`, as in the
-   sketch), or a fraction of the wheel (`hole 0.8`)?
-7. **Line breaks:** do they matter, or can a whole layer go on one line?
+- **Whitespace and line breaks** don't matter. `{ }` mark the blocks, so a
+  whole layer can go on one line.
+- **Comments** start with `#` and run to the end of the line.
+- **Negative numbers:** a `-` directly followed by a digit is part of the
+  number, so `-4` is one token. The language has no subtraction.
+- **Fractions:** `1/3` is three tokens: a number, a `/`, and a number. The
+  parser accepts a fraction wherever it expects a decimal number. A zero
+  denominator is an error.
+- **Whole numbers:** speeds, tooth counts and `count` must be whole numbers,
+  so `1.5` or `1/3` there is an error.
+- **Colours** are either a name or a hex value:
+  - names: `black`, `white`, `gray`, `red`, `orange`, `yellow`, `green`,
+    `blue`, `purple`, `pink`, `brown`, `magenta` (all from macroquad's
+    colour constants);
+  - hex: `x` followed by exactly 6 hex digits, `RRGGBB`, in upper or lower
+    case, as in `x008080`. The lexer reads it as an ordinary word, and the
+    parser treats it as a hex colour wherever a colour is expected. Using
+    `x` instead of `#` avoids a clash with comments.
+- **Background:** an optional `background <colour>` line at the top of the
+  file. The default is `white`.
+- **Canvas size** is left for export (Day 3). On screen, the drawing fits
+  the window.
+- **`toy` hole** is a distance from the wheel's centre, as in
+  `hole 28.8`.
 
 ## Pipeline
 
