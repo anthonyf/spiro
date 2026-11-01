@@ -75,13 +75,13 @@ pub enum LexError {
     },
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Token {
     pub kind: TokenKind,
     pub position: Position,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum TokenKind {
     OpenBrace,
     CloseBrace,
@@ -469,7 +469,7 @@ background white
 
 # The same classic curve, written two ways
 layer {
-  pen x008080 1.5             # teal, as a hex colour
+  pen x008080 1.5             # teal, as a hex color
   classic {
     ring 96
     arm 60 speed 3

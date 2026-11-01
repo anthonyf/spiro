@@ -46,7 +46,7 @@ background white
 
 # The same classic curve, written two ways
 layer {
-  pen x008080 1.5             # teal, as a hex colour
+  pen x008080 1.5             # teal, as a hex color
   classic {
     ring 96
     arm 60 speed 3
@@ -98,15 +98,15 @@ The types can't express these, so they are reported as errors:
   denominator is an error.
 - **Whole numbers:** speeds, tooth counts and `count` must be whole numbers,
   so `1.5` or `1/3` there is an error.
-- **Colours** are either a name or a hex value:
+- **Colors** are either a name or a hex value:
   - names: `black`, `white`, `gray`, `red`, `orange`, `yellow`, `green`,
     `blue`, `purple`, `pink`, `brown`, `magenta` (all from macroquad's
-    colour constants);
+    color constants);
   - hex: `x` followed by exactly 6 hex digits, `RRGGBB`, in upper or lower
     case, as in `x008080`. The lexer reads it as an ordinary word, and the
-    parser treats it as a hex colour wherever a colour is expected. Using
+    parser treats it as a hex color wherever a color is expected. Using
     `x` instead of `#` avoids a clash with comments.
-- **Background:** an optional `background <colour>` line at the top of the
+- **Background:** an optional `background <color>` line at the top of the
   file. The default is `white`.
 - **Canvas size** is left for export (Day 3). On screen, the drawing fits
   the window.
