@@ -1,4 +1,5 @@
 use std::f32::consts::TAU;
+use std::fmt;
 
 #[derive(Debug, Clone, Copy, Default)]
 pub struct Arm {
@@ -80,6 +81,105 @@ pub fn pen_point(arms: &[Arm], time: f32) -> Point {
     pen_points(arms, time)
         .pop()
         .unwrap_or(Point { x: 0.0, y: 0.0 })
+}
+
+pub fn max_reach(spirographs: &[Spirograph]) -> f32 {
+    spirographs
+        .iter()
+        .map(|spiro| spiro.reach())
+        .reduce(f32::max)
+        .unwrap_or(1.0)
+}
+
+pub fn classic() -> Spirograph {
+    let ring_radius = 96.0;
+    let arms = vec![
+        Arm {
+            length: 60.0,
+            speed: 3,
+            ..Default::default()
+        },
+        Arm {
+            length: 28.8,
+            speed: -5,
+            ..Default::default()
+        },
+    ];
+    Spirograph { ring_radius, arms }
+}
+
+pub fn fractal(
+    length: f32,
+    speed: i32,
+    length_multiplyer: f32,
+    speed_multiplyer: i32,
+    iterations: u32,
+) -> Spirograph {
+    let mut arms = Vec::new();
+    let mut current_length = length;
+    let mut current_speed = speed;
+
+    for _ in 0..iterations {
+        arms.push(Arm {
+            length: current_length,
+            speed: current_speed,
+            ..Default::default()
+        });
+        current_length *= length_multiplyer;
+        current_speed *= speed_multiplyer;
+    }
+    let ring_radius = length / (1.0 + length_multiplyer);
+
+    Spirograph { ring_radius, arms }
+}
+
+pub fn toy(ring: u32, wheel: u32, hole: f32) -> Result<Spirograph, SpirographError> {
+    if wheel == 0 {
+        return Err(SpirographError::WheelIsZero);
+    }
+
+    if wheel >= ring {
+        return Err(SpirographError::WheelTooBig { wheel, ring });
+    }
+
+    let ring_radius = ring as f32;
+    let wheel_radius = wheel as f32;
+    let g = gcd(ring, wheel);
+
+    Ok(Spirograph {
+        ring_radius,
+        arms: vec![
+            Arm {
+                length: ring_radius - wheel_radius,
+                speed: (wheel / g) as i32,
+                ..Default::default()
+            },
+            Arm {
+                length: hole,
+                speed: -(ring as i32 - wheel as i32) / g as i32,
+                ..Default::default()
+            },
+        ],
+    })
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum SpirographError {
+    WheelTooBig { wheel: u32, ring: u32 },
+    WheelIsZero,
+}
+
+impl fmt::Display for SpirographError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            SpirographError::WheelTooBig { wheel, ring } => {
+                write!(f, "Wheel size {wheel} is too big for ring size {ring}")
+            }
+            SpirographError::WheelIsZero => {
+                write!(f, "Wheel size is zero")
+            }
+        }
+    }
 }
 
 #[cfg(test)]
@@ -171,5 +271,56 @@ mod tests {
         assert_eq!(points.len(), 1);
         assert_close!(points[0].x, 0.0);
         assert_close!(points[0].y, 1.0);
+    }
+
+    #[test]
+    fn test_fractal_ring() {
+        let spiro = fractal(60.0, -3, 1.0 / 3.0, -4, 7);
+        assert_close!(spiro.ring_radius, 45.0);
+    }
+
+    #[test]
+    fn test_reach_classic() {
+        let spiro = classic();
+        assert_close!(spiro.reach(), 96.0);
+    }
+
+    #[test]
+    fn test_reach_fractal() {
+        let spiro = fractal(60.0, -3, 1.0 / 3.0, -4, 7);
+        assert_close!(spiro.reach(), 90.0 * (1.0 - (1.0_f32 / 3.0).powi(7)));
+    }
+
+    #[test]
+    fn test_wheel_sizes_outside_case() {
+        let spiro = fractal(60.0, -3, 1.0 / 3.0, -4, 7);
+        let wheel_sizes = spiro.wheel_sizes();
+        assert_eq!(wheel_sizes.len(), spiro.arms.len());
+        assert_close!(wheel_sizes[0], 15.0);
+        assert_close!(wheel_sizes[1], 5.0);
+        assert_close!(wheel_sizes[2], 5.0 / 3.0);
+    }
+
+    #[test]
+    fn test_wheel_sizes_inside_case() {
+        let spiro = classic();
+        let wheel_sizes = spiro.wheel_sizes();
+        assert_eq!(wheel_sizes.len(), spiro.arms.len());
+        assert_close!(wheel_sizes[0], 36.0);
+        assert_close!(wheel_sizes[1], 7.2);
+    }
+
+    #[test]
+    fn test_toy_vs_classic_equivalence() {
+        let toy_spiro = toy(96, 36, 28.8).unwrap();
+        let classic_spiro = classic();
+
+        assert_close!(toy_spiro.ring_radius, classic_spiro.ring_radius);
+        assert_eq!(toy_spiro.arms.len(), classic_spiro.arms.len());
+
+        for (toy_arm, classic_arm) in toy_spiro.arms.iter().zip(classic_spiro.arms.iter()) {
+            assert_close!(toy_arm.length, classic_arm.length);
+            assert_eq!(toy_arm.speed, classic_arm.speed);
+        }
     }
 }

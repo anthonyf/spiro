@@ -77,11 +77,12 @@ defaults to 0, as in `arm 60 speed 3 phase 0.5`.
 
 The types can't express these, so they are reported as errors:
 
-- `toy`: the wheel must be smaller than the ring.
+- `toy`: the wheel can't be zero, and must be smaller than the ring.
+  (Checked: `WheelIsZero` and `WheelTooBig`.)
 - `fractal`: the length multiplier can't be −1, because the ring calculation
-  would divide by zero.
+  would divide by zero. (Not checked yet.)
 - Every shape needs at least one arm with a non-zero speed, or the curve has
-  no period.
+  no period. (Not checked yet.)
 
 ### Open questions before freezing the syntax
 
@@ -105,6 +106,17 @@ The types can't express these, so they are reported as errors:
 4. **Renderer:** macroquad on screen, SVG/PNG export behind a trait.
 5. **Hot reload:** check the file's mtime each frame and re-render on save.
 
+## Code layout
+
+- `src/spirograph.rs`: the maths. Arms, spirographs (period, reach, wheel
+  sizes), pen positions, and the builders that turn `classic`, `fractal` and
+  `toy` inputs into arms, with `SpirographError` for invalid toys.
+- `src/document.rs`: the document model (documents, layers, pens, shapes) and
+  evaluating a document into spirographs, plus example documents.
+- `src/main.rs`: the macroquad window, the camera and drawing, and the
+  display mode.
+- `src/test_utils.rs`: test-only helpers, including `assert_close!`.
+
 ## Plan
 
 - [x] Day 1: renderer from hardcoded arms; classic and fractal curves; stop
@@ -113,8 +125,9 @@ The types can't express these, so they are reported as errors:
 - [ ] Day 2: lexer, parser, evaluator; errors with line/column
       ([`ariadne`](https://crates.io/crates/ariadne)); hot reload
 - [ ] Day 3: colors, SVG/PNG export. Stretch: web build, `let`.
-      (The document model with layers, pens and `fractal` is already done in
-      Rust; `toy` is still to do.)
+      (Already done in Rust: the document model with layers and pens, all
+      three shapes, and evaluating a document once into spirographs, with
+      errors returned as `Result`.)
 - [ ] Later: move the evaluator's checks into types, so invalid values
       can't be built. For example, `NonZeroU32` for the toy's wheel (which
       removes `WheelIsZero`), and a `Gears` type whose constructor checks
