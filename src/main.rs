@@ -3,6 +3,7 @@ use std::f32::consts::TAU;
 
 #[derive(Debug, Clone)]
 struct Document {
+    background_color: Color,
     layers: Vec<Layer>,
 }
 
@@ -180,6 +181,7 @@ fn pen_point(arms: &[Arm], time: f32) -> Point {
 
 fn _classic() -> Document {
     Document {
+        background_color: BLACK,
         layers: vec![Layer {
             pen: Pen {
                 color: BLACK,
@@ -210,8 +212,10 @@ fn fractal(
     next_length_multiplyer: f32,
     next_speed_multiplyer: i32,
     iterations: u32,
+    background_color: Color,
 ) -> Document {
     Document {
+        background_color,
         layers: vec![Layer {
             pen: Pen {
                 color: BLACK,
@@ -295,7 +299,8 @@ fn draw_spirograph(
 
 #[macroquad::main("Spirograph")]
 async fn main() {
-    let doc = fractal(60.0, -3, 1.0 / 3.0, -4, 7);
+    let background_color = WHITE;
+    let doc = fractal(60.0, -3, 1.0 / 3.0, -4, 7, background_color);
 
     let mut time = 0.0;
 
@@ -317,7 +322,7 @@ async fn main() {
 
         set_camera(&camera);
 
-        clear_background(WHITE);
+        clear_background(doc.background_color);
 
         draw_document(&doc, time, scale, DisplayMode::Debug);
 
@@ -388,7 +393,7 @@ mod tests {
 
     #[test]
     fn test_fractal_ring() {
-        let spiro = fractal(60.0, -3, 1.0 / 3.0, -4, 7).spirographs()[0].clone();
+        let spiro = fractal(60.0, -3, 1.0 / 3.0, -4, 7, WHITE).spirographs()[0].clone();
         assert_close!(spiro.ring_radius, 45.0);
     }
 
@@ -400,13 +405,13 @@ mod tests {
 
     #[test]
     fn test_reach_fractal() {
-        let spiro = fractal(60.0, -3, 1.0 / 3.0, -4, 7).spirographs()[0].clone();
+        let spiro = fractal(60.0, -3, 1.0 / 3.0, -4, 7, WHITE).spirographs()[0].clone();
         assert_close!(spiro.reach(), 90.0 * (1.0 - (1.0_f32 / 3.0).powi(7)));
     }
 
     #[test]
     fn test_wheel_sizes_outside_case() {
-        let spiro = fractal(60.0, -3, 1.0 / 3.0, -4, 7).spirographs()[0].clone();
+        let spiro = fractal(60.0, -3, 1.0 / 3.0, -4, 7, WHITE).spirographs()[0].clone();
         let wheel_sizes = spiro.wheel_sizes();
         assert_eq!(wheel_sizes.len(), spiro.arms.len());
         assert_close!(wheel_sizes[0], 15.0);
