@@ -86,7 +86,7 @@ pub fn _toy(ring: u32, wheel: u32, hole: f32) -> Document {
     }
 }
 
-fn _classic() -> Document {
+pub fn _classic() -> Document {
     let Spirograph { ring_radius, arms } = classic();
     Document {
         background_color: WHITE,
@@ -103,7 +103,7 @@ fn _classic() -> Document {
     }
 }
 
-fn _fractal(
+pub fn _fractal(
     start_length: f32,
     start_speed: i32,
     next_length_multiplyer: f32,

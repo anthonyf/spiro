@@ -113,8 +113,10 @@ The types can't express these, so they are reported as errors:
   `toy` inputs into arms, with `SpirographError` for invalid toys.
 - `src/document.rs`: the document model (documents, layers, pens, shapes) and
   evaluating a document into spirographs, plus example documents.
-- `src/main.rs`: the macroquad window, the camera and drawing, and the
-  display mode.
+- `src/render.rs`: drawing a spirograph with macroquad, and the display mode
+  (whether to show the ring, wheels and arms).
+- `src/main.rs`: picks a document, evaluates it once, then runs the window
+  loop and the camera.
 - `src/test_utils.rs`: test-only helpers, including `assert_close!`.
 
 ## Plan
