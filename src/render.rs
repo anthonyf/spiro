@@ -8,8 +8,8 @@ pub enum DisplayMode {
     Debug,
 }
 
-pub fn scale_to_fit(reach: f32, window_width: f32, window_height: f32) -> f32 {
-    let room = window_width.min(window_height) / 2.0;
+pub fn scale_to_fit(reach: f32, width: f32, height: f32) -> f32 {
+    let room = width.min(height) / 2.0;
     let margin = room * 0.1;
 
     (room - margin) / reach
@@ -80,10 +80,30 @@ mod tests {
     #[test]
     fn test_scale_to_fit() {
         let reach = 100.0;
-        let window_width = 800.0;
-        let window_height = 600.0;
+        let width = 800.0;
+        let height = 600.0;
 
-        let scale = scale_to_fit(reach, window_width, window_height);
+        let scale = scale_to_fit(reach, width, height);
         assert_close!(scale, 2.7);
+    }
+
+    #[test]
+    fn test_scale_to_fit_portrait() {
+        let reach = 100.0;
+        let width = 1000.0;
+        let height = 1200.0;
+
+        let scale = scale_to_fit(reach, width, height);
+        assert_close!(scale, 4.5);
+    }
+
+    #[test]
+    fn test_scale_to_fit_square() {
+        let reach = 100.0;
+        let width = 800.0;
+        let height = 800.0;
+
+        let scale = scale_to_fit(reach, width, height);
+        assert_close!(scale, 3.6);
     }
 }
