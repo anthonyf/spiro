@@ -8,6 +8,13 @@ pub enum DisplayMode {
     Debug,
 }
 
+pub fn scale_to_fit(reach: f32, window_width: f32, window_height: f32) -> f32 {
+    let room = window_width.min(window_height) / 2.0;
+    let margin = room * 0.1;
+
+    (room - margin) / reach
+}
+
 pub fn draw_spirograph(
     spiro: &Spirograph,
     pen: &Pen,
@@ -62,5 +69,21 @@ pub fn draw_spirograph(
             );
             prev_point = *point;
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::test_utils::assert_close;
+
+    #[test]
+    fn test_scale_to_fit() {
+        let reach = 100.0;
+        let window_width = 800.0;
+        let window_height = 600.0;
+
+        let scale = scale_to_fit(reach, window_width, window_height);
+        assert_close!(scale, 2.7);
     }
 }

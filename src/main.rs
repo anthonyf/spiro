@@ -7,7 +7,7 @@ mod test_utils;
 
 use document::_toy;
 use macroquad::prelude::*;
-use render::{DisplayMode, draw_spirograph};
+use render::{DisplayMode, draw_spirograph, scale_to_fit};
 use spirograph::max_reach;
 
 #[macroquad::main("spirograph")]
@@ -31,10 +31,7 @@ async fn main() {
     loop {
         time += get_frame_time();
 
-        let room = screen_width().min(screen_height()) / 2.0;
-        let margin = room * 0.1;
-
-        let scale = (room - margin) / reach;
+        let scale = scale_to_fit(reach, screen_width(), screen_height());
 
         let camera = Camera2D {
             zoom: vec2(scale / screen_width() * 2.0, scale / screen_height() * 2.0),
