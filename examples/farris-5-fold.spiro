@@ -3,7 +3,7 @@
 background black
 
 layer {
-  pen lime 1.5
+  pen lime 2
   classic {
     ring 80
     arm 60 speed 1

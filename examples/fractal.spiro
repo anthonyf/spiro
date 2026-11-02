@@ -3,7 +3,7 @@
 background black
 
 layer {
-  pen gold 1
+  pen gold 2
   fractal {
     length 60
     speed -3

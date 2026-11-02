@@ -5,7 +5,7 @@
 background black
 
 layer {
-  pen magenta 1.5
+  pen magenta 2
   classic {
     ring 80
     arm 60 speed 1

@@ -3,12 +3,12 @@
 background white
 
 layer {
-  pen x008080 2
+  pen x008080 3
   toy ring 96 wheel 36 hole 28.8
 }
 
 # A second wheel in the same ring, drawn on top.
 layer {
-  pen purple 1
+  pen purple 3
   toy ring 96 wheel 52 hole 40
 }

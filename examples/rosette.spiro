@@ -3,16 +3,16 @@
 background white
 
 layer {
-  pen darkblue 1.5
+  pen darkblue 3
   toy ring 105 wheel 30 hole 20
 }
 
 layer {
-  pen maroon 1.5
+  pen maroon 3
   toy ring 105 wheel 42 hole 35
 }
 
 layer {
-  pen darkgreen 1.5
+  pen darkgreen 3
   toy ring 105 wheel 63 hole 50
 }

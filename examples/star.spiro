@@ -3,7 +3,7 @@
 background darkblue
 
 layer {
-  pen gold 2
+  pen gold 3
   classic {
     ring 100
     arm 60 speed 2

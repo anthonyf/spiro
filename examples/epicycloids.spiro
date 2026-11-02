@@ -4,7 +4,7 @@ background white
 
 # Cardioid: a wheel the same size as the fixed circle, pen on its rim.
 layer {
-  pen red 2
+  pen red 3
   classic {
     ring 30
     arm 60 speed 1
@@ -14,7 +14,7 @@ layer {
 
 # Nephroid: a wheel half the size of the fixed circle, pen on its rim.
 layer {
-  pen purple 2
+  pen purple 3
   classic {
     ring 30
     arm 45 speed 1

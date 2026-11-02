@@ -2,7 +2,7 @@ background white
 
 # The same classic curve, written two ways
 layer {
-  pen x008080 1.5             # teal, as a hex color
+  pen x008080 3               # teal, as a hex color
   classic {
     ring 96
     arm 60 speed 3
@@ -11,13 +11,13 @@ layer {
 }
 
 layer {
-  pen x008080 1.5
+  pen x008080 3
   toy ring 96 wheel 36 hole 28.8
 }
 
 # A Coding Train style fractal: 7 arms
 layer {
-  pen red 0.5
+  pen red 2
   fractal {
     length 60                 # the first arm...
     speed -3

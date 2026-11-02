@@ -7,7 +7,7 @@
 background black
 
 layer {
-  pen white 1
+  pen white 2
   fractal {
     length 60
     speed 1
