@@ -1,0 +1,16 @@
+# The Coding Train fractal with a speed multiplier of -5: speeds 1, -5, 25,
+# -125, ... are all 1 more than a multiple of 6, so the curve has 6-fold
+# symmetry. The arms shrink to a quarter each time, so the faster arms
+# don't swamp the shape.
+background black
+
+layer {
+  pen orange 1
+  fractal {
+    length 60
+    speed 1
+    length_multiplier 1/4
+    speed_multiplier -5
+    count 6
+  }
+}

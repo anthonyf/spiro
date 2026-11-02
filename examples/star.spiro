@@ -1,0 +1,12 @@
+# Two arms turning in opposite directions at speeds 2 and -3 draw a
+# five-pointed star with loops.
+background darkblue
+
+layer {
+  pen gold 2
+  classic {
+    ring 100
+    arm 60 speed 2
+    arm 40 speed -3
+  }
+}

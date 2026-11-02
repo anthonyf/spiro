@@ -1,0 +1,23 @@
+# Wheels rolling around the outside of a fixed circle of radius 30: the
+# first arm is longer than the ring, so the wheel sits outside it.
+background white
+
+# Cardioid: a wheel the same size as the fixed circle, pen on its rim.
+layer {
+  pen red 2
+  classic {
+    ring 30
+    arm 60 speed 1
+    arm 30 speed 2
+  }
+}
+
+# Nephroid: a wheel half the size of the fixed circle, pen on its rim.
+layer {
+  pen purple 2
+  classic {
+    ring 30
+    arm 45 speed 1
+    arm 15 speed 3
+  }
+}

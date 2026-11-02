@@ -91,6 +91,8 @@ pub fn max_reach(spirographs: &[Spirograph]) -> f32 {
         .unwrap_or(1.0)
 }
 
+/// A known classic spirograph, used by tests and the `_classic` example.
+#[allow(dead_code)]
 pub fn classic() -> Spirograph {
     let ring_radius = 96.0;
     let arms = vec![

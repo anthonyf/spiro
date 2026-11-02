@@ -1,14 +1,42 @@
 use crate::{
-    document::{Pen, Shape},
-    lexer::{Token, TokenKind},
+    document::{Document, Layer, Pen, Shape},
+    error::SpiroError,
+    lexer::{Token, TokenKind, lex},
     spirograph::Arm,
 };
 use macroquad::prelude::Color;
+use std::fmt;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum ParseError {
     UnexpectedToken { expected: String, found: Token },
     UnexpectedEndOfInput { expected: String },
+}
+
+impl fmt::Display for ParseError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            ParseError::UnexpectedToken { expected, found } => write!(
+                f,
+                "{}: expected {expected}, found {}",
+                found.position, found.kind
+            ),
+            ParseError::UnexpectedEndOfInput { expected } => {
+                write!(f, "the file ended too soon: expected {expected}")
+            }
+        }
+    }
+}
+
+/// Lexes and parses a whole `.spiro` source file into a document.
+pub fn parse_source(source: &str) -> Result<Document, SpiroError> {
+    let tokens = lex(source)?;
+    Ok(parse(&tokens)?)
+}
+
+/// Parses tokens from the lexer into a document.
+pub fn parse(tokens: &[Token]) -> Result<Document, ParseError> {
+    Parser::new(tokens).document()
 }
 
 fn unexpected_token(token: &Token, expected: &str) -> ParseError {
@@ -74,12 +102,12 @@ impl<'a> Parser<'a> {
     }
 
     fn expect(&mut self, kind: &TokenKind) -> Result<(), ParseError> {
-        let token = self.peek_or_unexpected_end(&format!("{kind:?}"))?;
+        let token = self.peek_or_unexpected_end(&kind.to_string())?;
         if &token.kind == kind {
             self.next();
             return Ok(());
         }
-        Err(unexpected_token(token, &format!("{kind:?}")))
+        Err(unexpected_token(token, &kind.to_string()))
     }
 
     // accepts integer, decimal or fraction, and returns a f32
@@ -280,12 +308,39 @@ impl<'a> Parser<'a> {
             _ => Err(unexpected_token(word_token, "toy, fractal or classic")),
         }
     }
+
+    fn layer(&mut self) -> Result<Layer, ParseError> {
+        self.expect_word("layer")?;
+        self.expect(&TokenKind::OpenBrace)?;
+        let pen = self.pen()?;
+        let shape = self.shape()?;
+        self.expect(&TokenKind::CloseBrace)?;
+        Ok(Layer { pen, shape })
+    }
+
+    fn document(&mut self) -> Result<Document, ParseError> {
+        let background_color = if self.peek_word("background") {
+            self.expect_word("background")?;
+            self.color()?
+        } else {
+            macroquad::prelude::WHITE
+        };
+        let mut layers = Vec::new();
+        while self.peek().is_some() {
+            layers.push(self.layer()?);
+        }
+        Ok(Document {
+            background_color,
+            layers,
+        })
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::lexer::{Position, lex};
+    use crate::document::{_classic, _toy};
+    use crate::lexer::Position;
 
     #[test]
     fn test_parser_expect_word() {
@@ -311,7 +366,7 @@ mod tests {
         assert_eq!(
             parser.expect(&TokenKind::Word("foo".to_string())),
             Err(ParseError::UnexpectedEndOfInput {
-                expected: "Word(\"foo\")".to_string()
+                expected: "'foo'".to_string()
             })
         );
     }
@@ -474,7 +529,7 @@ mod tests {
         assert_eq!(
             error,
             ParseError::UnexpectedEndOfInput {
-                expected: "CloseBrace".to_string()
+                expected: "'}'".to_string()
             }
         );
     }
@@ -570,5 +625,124 @@ mod tests {
                 iterations: 7
             }
         );
+    }
+
+    #[test]
+    fn test_parser_readme_doc() {
+        let tokens = lex("background white
+
+# The same classic curve, written two ways
+layer {
+  pen x008080 1.5             # teal, as a hex color
+  classic {
+    ring 96
+    arm 60 speed 3
+    arm 28.8 speed -5
+  }
+}
+
+layer {
+  pen x008080 1.5
+  toy ring 96 wheel 36 hole 28.8
+}
+
+# A Coding Train style fractal: 7 arms
+layer {
+  pen red 0.5
+  fractal {
+    length 60                 # the first arm...
+    speed -3
+    length_multiplier 1/3     # ...each next one a third as long...
+    speed_multiplier -4       # ...and 4x faster, reversed
+    count 7
+  }
+}")
+        .unwrap();
+        let mut parser = Parser::new(&tokens);
+        let doc = parser.document().unwrap();
+        assert_eq!(doc.layers.len(), 3);
+    }
+
+    #[test]
+    fn test_parse_source_toy_matches_builder() {
+        let doc = parse_source("layer { pen black 3 toy ring 96 wheel 36 hole 28.8 }").unwrap();
+        assert_eq!(doc, _toy(96, 36, 28.8));
+    }
+
+    #[test]
+    fn test_parse_source_classic_matches_builder() {
+        let doc = parse_source(
+            "background white
+             layer {
+               pen black 3
+               classic { ring 96 arm 60 speed 3 arm 28.8 speed -5 }
+             }",
+        )
+        .unwrap();
+        assert_eq!(doc, _classic());
+    }
+
+    #[test]
+    fn test_parse_source_default_background_is_white() {
+        let doc = parse_source("").unwrap();
+        assert_eq!(doc.background_color, macroquad::prelude::WHITE);
+        assert!(doc.layers.is_empty());
+    }
+
+    #[test]
+    fn test_parse_source_leftover_token() {
+        let error =
+            parse_source("layer { pen red 1 toy ring 96 wheel 36 hole 28.8 } }").unwrap_err();
+        assert_eq!(
+            error.to_string(),
+            "line 1, column 52: expected word 'layer', found '}'"
+        );
+    }
+
+    #[test]
+    fn test_parse_source_lex_error() {
+        let error = parse_source("layer @").unwrap_err();
+        assert_eq!(
+            error.to_string(),
+            "line 1, column 7: unexpected character '@'"
+        );
+    }
+
+    #[test]
+    fn test_parse_source_unknown_shape() {
+        let error = parse_source("layer { pen red 1 circle { } }").unwrap_err();
+        assert_eq!(
+            error.to_string(),
+            "line 1, column 19: expected toy, fractal or classic, found 'circle'"
+        );
+    }
+
+    #[test]
+    fn test_parse_source_ends_too_soon() {
+        let error = parse_source("layer { pen red").unwrap_err();
+        assert_eq!(
+            error.to_string(),
+            "the file ended too soon: expected decimal"
+        );
+    }
+
+    /// Every `.spiro` file in `examples/` must parse and evaluate.
+    #[test]
+    fn test_example_files_parse() {
+        let dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("examples");
+        let mut count = 0;
+        for entry in std::fs::read_dir(dir).unwrap() {
+            let path = entry.unwrap().path();
+            if path.extension().is_some_and(|ext| ext == "spiro") {
+                let source = std::fs::read_to_string(&path).unwrap();
+                let doc =
+                    parse_source(&source).unwrap_or_else(|e| panic!("{}: {e}", path.display()));
+                assert!(!doc.layers.is_empty(), "{}: no layers", path.display());
+                doc.spirographs()
+                    .unwrap_or_else(|e| panic!("{}: {e}", path.display()));
+                count += 1;
+            }
+        }
+        assert!(count > 0, "no example files found");
     }
 }

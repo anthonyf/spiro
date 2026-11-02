@@ -1,0 +1,14 @@
+# A Coding Train style fractal spirograph: each arm is a third as long as
+# the one before it, and spins 4 times as fast in the other direction.
+background black
+
+layer {
+  pen gold 1
+  fractal {
+    length 60
+    speed -3
+    length_multiplier 1/3
+    speed_multiplier -4
+    count 7
+  }
+}

@@ -1,8 +1,16 @@
+use std::fmt;
+
 /// Where something is in the source text. Both numbers start at 1.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Position {
     pub line: u32,
     pub column: u32,
+}
+
+impl fmt::Display for Position {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "line {}, column {}", self.line, self.column)
+    }
 }
 
 #[derive(Debug)]
@@ -89,6 +97,40 @@ pub enum TokenKind {
     Integer(i32),
     Float(f32),
     Fraction { numerator: i32, denominator: i32 },
+}
+
+impl fmt::Display for LexError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            LexError::InvalidCharacter { position, char } => {
+                write!(f, "{position}: unexpected character '{char}'")
+            }
+            LexError::DivideByZero { position } => {
+                write!(f, "{position}: a fraction can't have a zero denominator")
+            }
+            LexError::InvalidNumber {
+                position,
+                non_number,
+            } => write!(f, "{position}: '{non_number}' is not a valid number"),
+        }
+    }
+}
+
+/// How a token reads in an error message, e.g. "found '}'".
+impl fmt::Display for TokenKind {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            TokenKind::OpenBrace => write!(f, "'{{'"),
+            TokenKind::CloseBrace => write!(f, "'}}'"),
+            TokenKind::Word(word) => write!(f, "'{word}'"),
+            TokenKind::Integer(integer) => write!(f, "{integer}"),
+            TokenKind::Float(float) => write!(f, "{float}"),
+            TokenKind::Fraction {
+                numerator,
+                denominator,
+            } => write!(f, "{numerator}/{denominator}"),
+        }
+    }
 }
 
 pub fn lex(source: &str) -> Result<Vec<Token>, LexError> {

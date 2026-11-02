@@ -1,0 +1,22 @@
+# When the pen is right on the wheel's rim (hole = wheel), the curve gets
+# sharp points, called cusps.
+background white
+
+# Deltoid: a wheel a third the size of the ring gives 3 cusps.
+layer {
+  pen red 2
+  toy ring 96 wheel 32 hole 32
+}
+
+# Astroid: a wheel a quarter the size of the ring gives 4 cusps.
+layer {
+  pen blue 2
+  toy ring 96 wheel 24 hole 24
+}
+
+# A wheel half the size of the ring traces a straight line (the Tusi
+# couple), and moving the pen inside the wheel turns it into an ellipse.
+layer {
+  pen gray 2
+  toy ring 96 wheel 48 hole 20
+}

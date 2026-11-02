@@ -4,6 +4,38 @@ A small declarative language for defining spirographs, including fractal ones,
 rendered with [macroquad](https://github.com/not-fl3/macroquad). A 3-day long
 weekend project to learn Rust.
 
+## Running it
+
+```bash
+cargo run -- examples/coding-train.spiro
+```
+
+With no file name, it opens `examples/readme.spiro`. If a file has a mistake,
+spiro prints where it is and exits, for example:
+
+```
+examples/broken.spiro: line 2, column 7: expected color, found 'teal'
+```
+
+### Examples
+
+| File | What it shows |
+|---|---|
+| `coding-train.spiro` | The Coding Train's fractal spirograph: each arm a third as long and 4× faster, reversed (5-fold symmetry) |
+| `fractal-4-fold.spiro` | The same fractal with a speed multiplier of −3 (4-fold symmetry) |
+| `fractal-6-fold.spiro` | A speed multiplier of −5 (6-fold symmetry) |
+| `farris-6-fold.spiro` | Frank Farris's "wheels on wheels" curve with speeds 1, 7, −17 |
+| `farris-5-fold.spiro` | A Farris-style curve with speeds 1, 6, −14 |
+| `rosette.spiro` | Three toy wheels in one ring, drawn on top of each other |
+| `cusps.spiro` | A deltoid, an astroid, and an ellipse from the toy |
+| `epicycloids.spiro` | A cardioid and a nephroid: wheels rolling around the outside |
+| `star.spiro` | A looped five-pointed star from two arms |
+| `toy.spiro`, `fractal.spiro`, `readme.spiro` | The examples from this README |
+
+A fractal or Farris curve has `m`-fold symmetry when all its speeds leave the
+same remainder when divided by `m`. For a fractal whose speed multiplier is
+`−k`, that gives `k + 1`-fold symmetry.
+
 ## Core idea
 
 Every spirograph is a **ring size** plus a list of **spinning arms**. Each arm
@@ -75,6 +107,28 @@ layer {
 The pen's width is in screen pixels. An arm's `phase` is optional and
 defaults to 0, as in `arm 60 speed 3 phase 0.5`.
 
+### Grammar
+
+```
+document  = [ "background" color ] { layer }
+layer     = "layer" "{" pen shape "}"
+pen       = "pen" color decimal
+shape     = classic | toy | fractal
+classic   = "classic" "{" "ring" decimal { arm } "}"
+arm       = "arm" decimal "speed" whole [ "phase" decimal ]
+toy       = "toy" "ring" unsigned "wheel" unsigned "hole" decimal
+fractal   = "fractal" "{" "length" decimal  "speed" whole
+                          "length_multiplier" decimal  "speed_multiplier" whole
+                          "count" unsigned "}"
+color     = WORD                      (a color name, or x + 6 hex digits)
+decimal   = INTEGER | FLOAT | FRACTION
+whole     = INTEGER
+unsigned  = INTEGER that isn't negative
+```
+
+`"text"` is a word, `[ … ]` is optional, `{ … }` repeats, and `|` means one
+of. A `fractal`'s settings must come in the order shown.
+
 ### Rules the evaluator checks
 
 The types can't express these, so they are reported as errors:
@@ -93,15 +147,19 @@ The types can't express these, so they are reported as errors:
 - **Comments** start with `#` and run to the end of the line.
 - **Negative numbers:** a `-` directly followed by a digit is part of the
   number, so `-4` is one token. The language has no subtraction.
-- **Fractions:** `1/3` is three tokens: a number, a `/`, and a number. The
-  parser accepts a fraction wherever it expects a decimal number. A zero
-  denominator is an error.
+- **Fractions:** `1/3` is one token, with no spaces inside it, the same as
+  `-4`. The numerator can be negative (`-1/3`); the denominator can't, and
+  can't be zero. The parser accepts a fraction wherever it expects a decimal
+  number.
 - **Whole numbers:** speeds, tooth counts and `count` must be whole numbers,
-  so `1.5` or `1/3` there is an error.
+  so `1.5` or `1/3` there is an error. Tooth counts and `count` can't be
+  negative.
 - **Colors** are either a name or a hex value:
-  - names: `black`, `white`, `gray`, `red`, `orange`, `yellow`, `green`,
-    `blue`, `purple`, `pink`, `brown`, `magenta` (all from macroquad's
-    color constants);
+  - names (all of macroquad's color constants): `beige`, `black`, `blue`,
+    `brown`, `darkblue`, `darkbrown`, `darkgray`, `darkgreen`,
+    `darkpurple`, `gold`, `gray`, `green`, `lightgray`, `lime`, `magenta`,
+    `maroon`, `orange`, `pink`, `purple`, `red`, `skyblue`, `violet`,
+    `white`, `yellow`;
   - hex: `x` followed by exactly 6 hex digits, `RRGGBB`, in upper or lower
     case, as in `x008080`. The lexer reads it as an ordinary word, and the
     parser treats it as a hex color wherever a color is expected. Using
@@ -129,11 +187,18 @@ The types can't express these, so they are reported as errors:
   `toy` inputs into arms, with `SpirographError` for invalid toys.
 - `src/document.rs`: the document model (documents, layers, pens, shapes) and
   evaluating a document into spirographs, plus example documents.
+- `src/lexer.rs`: text → tokens, each with a line and column.
+- `src/parser.rs`: tokens → document, by recursive descent with one function
+  per grammar rule. `parse_source` runs the lexer and the parser together.
+- `src/error.rs`: `SpiroError`, which holds an error from any step (reading
+  the file, lexing, parsing, or evaluating), so `?` works across them.
 - `src/render.rs`: drawing a spirograph with macroquad, and the display mode
   (whether to show the ring, wheels and arms).
-- `src/main.rs`: picks a document, evaluates it once, then runs the window
-  loop and the camera.
+- `src/main.rs`: loads the `.spiro` file named on the command line, evaluates
+  it once, then runs the window loop and the camera.
 - `src/test_utils.rs`: test-only helpers, including `assert_close!`.
+- `examples/`: example `.spiro` files. A test checks that every one of them
+  parses and evaluates.
 
 ## Plan
 
@@ -141,7 +206,10 @@ The types can't express these, so they are reported as errors:
       when the curve closes (`2π / gcd` of the speeds). Also done: animated
       drawing, spinning arms, touching wheels, and fitting the window.
 - [ ] Day 2: lexer, parser, evaluator; errors with line/column
-      ([`ariadne`](https://crates.io/crates/ariadne)); hot reload
+      ([`ariadne`](https://crates.io/crates/ariadne)); hot reload.
+      (Done: the lexer, parser and evaluator, loading a file from the
+      command line, and one-line error messages with line and column. Still
+      to do: ariadne and hot reload.)
 - [ ] Day 3: colors, SVG/PNG export. Stretch: web build, `let`.
       (Already done in Rust: the document model with layers and pens, all
       three shapes, and evaluating a document once into spirographs, with

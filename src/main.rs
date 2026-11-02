@@ -1,4 +1,5 @@
 mod document;
+mod error;
 mod lexer;
 mod parser;
 mod render;
@@ -7,22 +8,33 @@ mod spirograph;
 #[cfg(test)]
 mod test_utils;
 
-use document::_toy;
+use document::Document;
+use error::SpiroError;
 use macroquad::prelude::*;
 use render::{DisplayMode, draw_spirograph, scale_to_fit};
-use spirograph::max_reach;
+use spirograph::{Spirograph, max_reach};
+
+const DEFAULT_FILE: &str = "examples/readme.spiro";
+
+/// Reads, parses and evaluates a `.spiro` file.
+fn load(path: &str) -> Result<(Document, Vec<Spirograph>), SpiroError> {
+    let source = std::fs::read_to_string(path)?;
+    let document = parser::parse_source(&source)?;
+    let spirographs = document.spirographs()?;
+    Ok((document, spirographs))
+}
 
 #[macroquad::main("spirograph")]
 async fn main() {
-    // let doc = _classic();
-    let doc = _toy(96, 36, 28.8);
-    // let doc = _fractal(60.0, -3, 1.0 / 3.0, -4, 7, WHITE);
+    let path = std::env::args()
+        .nth(1)
+        .unwrap_or_else(|| DEFAULT_FILE.to_string());
 
-    let spiros = match doc.spirographs() {
-        Ok(s) => s,
+    let (doc, spiros) = match load(&path) {
+        Ok(loaded) => loaded,
         Err(e) => {
-            eprintln!("Error evaluating spirographs: {e}");
-            return;
+            eprintln!("{path}: {e}");
+            std::process::exit(1);
         }
     };
 

@@ -1,0 +1,13 @@
+# Farris-style wheels on wheels with 5-fold symmetry: the speeds 1, 6 and
+# -14 are all 1 more than a multiple of 5.
+background black
+
+layer {
+  pen lime 1.5
+  classic {
+    ring 80
+    arm 60 speed 1
+    arm 30 speed 6
+    arm 20 speed -14
+  }
+}

@@ -1,7 +1,7 @@
 use crate::spirograph::{Arm, Spirograph, SpirographError, classic, fractal, toy};
 use macroquad::prelude::{BLACK, Color, WHITE};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Document {
     pub background_color: Color,
     pub layers: Vec<Layer>,
@@ -16,13 +16,13 @@ impl Document {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Layer {
     pub pen: Pen,
     pub shape: Shape,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Pen {
     pub color: Color,
     pub thickness: f32,

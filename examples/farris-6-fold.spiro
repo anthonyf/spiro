@@ -1,0 +1,15 @@
+# Frank Farris, "Wheels on Wheels on Wheels" (1996): three arms with speeds
+# 1, 7 and -17. All three speeds are 1 more than a multiple of 6, so the
+# curve has 6-fold symmetry. The third arm starts a quarter turn ahead
+# (phase pi/2), as in Farris's example.
+background black
+
+layer {
+  pen magenta 1.5
+  classic {
+    ring 80
+    arm 60 speed 1
+    arm 30 speed 7
+    arm 20 speed -17 phase 1.5708
+  }
+}

@@ -1,0 +1,18 @@
+# Three toy wheels in the same 105-tooth ring, drawn on top of each other,
+# like using several wheels and pens on one sheet of paper.
+background white
+
+layer {
+  pen darkblue 1.5
+  toy ring 105 wheel 30 hole 20
+}
+
+layer {
+  pen maroon 1.5
+  toy ring 105 wheel 42 hole 35
+}
+
+layer {
+  pen darkgreen 1.5
+  toy ring 105 wheel 63 hole 50
+}
