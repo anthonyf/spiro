@@ -50,6 +50,39 @@ impl Spirograph {
 
         sizes
     }
+
+    /// How fast each wheel spins as it rolls, without skidding, on the one
+    /// before it. The first wheel rolls on the ring, which stays still.
+    ///
+    /// Where two wheels touch, the point has to move at the same speed on
+    /// both. So a wheel inside the one before it spins against its trip
+    /// round, and a wheel outside spins with it.
+    pub fn wheel_spins(&self) -> Vec<f32> {
+        let mut spins = Vec::new();
+        let mut prev_radius = self.ring_radius;
+        let mut prev_spin = 0.0;
+
+        for (arm, radius) in self.arms.iter().zip(self.wheel_sizes()) {
+            // How fast the wheel's centre moves, and how fast the edge of
+            // the wheel before it moves, both sideways to the arm.
+            let centre_speed = arm.speed as f32 * arm.length;
+            let edge_speed = prev_spin * prev_radius;
+
+            let spin = if radius == 0.0 {
+                0.0
+            } else if arm.length < prev_radius {
+                (edge_speed - centre_speed) / radius
+            } else {
+                (centre_speed - edge_speed) / radius
+            };
+
+            spins.push(spin);
+            prev_radius = radius;
+            prev_spin = spin;
+        }
+
+        spins
+    }
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -310,6 +343,40 @@ mod tests {
         assert_eq!(wheel_sizes.len(), spiro.arms.len());
         assert_close!(wheel_sizes[0], 36.0);
         assert_close!(wheel_sizes[1], 7.2);
+    }
+
+    #[test]
+    fn test_wheel_spins_inside_case() {
+        // A 36 wheel rolling inside a 96 ring spins backwards, at exactly
+        // the speed of the toy's pen arm.
+        let spiro = toy(96, 36, 28.8).unwrap();
+        let spins = spiro.wheel_spins();
+        assert_eq!(spins.len(), spiro.arms.len());
+        assert_close!(spins[0], -5.0);
+        assert_close!(spins[0], spiro.arms[1].speed as f32);
+    }
+
+    #[test]
+    fn test_wheel_spins_outside_case() {
+        // Rolling round the outside, a wheel spins with its trip round:
+        // the opposite way to the fractal's next arm (+12).
+        let spiro = fractal(60.0, -3, 1.0 / 3.0, -4, 7);
+        let spins = spiro.wheel_spins();
+        assert_close!(spins[0], -12.0);
+        assert_close!(spins[1], 84.0);
+    }
+
+    #[test]
+    fn test_wheel_spins_zero_wheel() {
+        let spiro = Spirograph {
+            ring_radius: 10.0,
+            arms: vec![Arm {
+                length: 10.0,
+                speed: 1,
+                ..Default::default()
+            }],
+        };
+        assert_eq!(spiro.wheel_spins(), vec![0.0]);
     }
 
     #[test]

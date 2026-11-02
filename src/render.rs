@@ -48,15 +48,34 @@ pub fn draw_spirograph(
 
     if let DisplayMode::Debug = display_mode {
         // draw the individual arms, actual size
-        let points = pen_points(arms, period * progress);
+        let t = period * progress;
+        let points = pen_points(arms, t);
         let mut prev_point = Point { x: 0.0, y: 0.0 };
         draw_circle_lines(prev_point.x, prev_point.y, *ring_radius, thickness, BLUE);
 
         let wheel_sizes = spiro.wheel_sizes();
+        let wheel_spins = spiro.wheel_spins();
 
-        for (point, wheel_radius) in points.iter().zip(wheel_sizes.iter()) {
+        for (((point, wheel_radius), spin), arm) in points
+            .iter()
+            .zip(wheel_sizes.iter())
+            .zip(wheel_spins.iter())
+            .zip(arms.iter())
+        {
             // draw the wheel
             draw_circle_lines(point.x, point.y, *wheel_radius, thickness, RED);
+
+            // draw a spoke, turning as the wheel rolls. It starts lined up
+            // with its arm.
+            let spoke_angle = arm.phase + spin * t;
+            draw_line(
+                point.x,
+                point.y,
+                point.x + wheel_radius * spoke_angle.cos(),
+                point.y + wheel_radius * spoke_angle.sin(),
+                thickness,
+                RED,
+            );
 
             // draw the arm
             draw_line(

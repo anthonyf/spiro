@@ -89,6 +89,13 @@ end, and the pen is at the tip of the last one.
   `|arm length − previous wheel|`. A wheel sits inside the previous one when
   its arm is shorter than that wheel, and outside when it's longer, so the
   side never has to be stored.
+- **The spokes** show each wheel turning as it rolls on the one before it,
+  without skidding. A wheel inside spins against its trip round, and a wheel
+  outside spins with it. An arm is the line between two wheel centres, not a
+  spoke, so it can turn a different way. In a toy, the pen arm and the spoke
+  turn together. In a fractal they don't: while each wheel rolls on the one
+  before it, they can't all be spokes, because a wheel carried by its
+  parent's spoke can't roll on that parent.
 
 Because the wheels are derived, the input can't describe wheels that fail to
 touch.
@@ -224,7 +231,7 @@ The types can't express these, so they are reported as errors:
 ## Code layout
 
 - `src/spirograph.rs`: the maths. Arms, spirographs (period, reach, wheel
-  sizes), pen positions, and the builders that turn `classic`, `fractal` and
+  sizes and spins), pen positions, and the builders that turn `classic`, `fractal` and
   `toy` inputs into arms, with `SpirographError` for invalid toys.
 - `src/document.rs`: the document model (documents, layers, pens, shapes) and
   evaluating a document into spirographs, plus example documents.
@@ -234,7 +241,7 @@ The types can't express these, so they are reported as errors:
 - `src/error.rs`: `SpiroError`, which holds an error from any step (reading
   the file, lexing, parsing, or evaluating), so `?` works across them.
 - `src/render.rs`: drawing a spirograph with macroquad, and the display mode
-  (whether to show the ring, wheels and arms).
+  (whether to show the ring, wheels, spokes and arms).
 - `src/svg.rs`: writes the finished curves as an SVG image, fitted the same
   way as the window.
 - `src/main.rs`: reads the command-line options, loads the `.spiro` file and
