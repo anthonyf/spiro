@@ -1,4 +1,4 @@
-use crate::spirograph::{Arm, Spirograph, SpirographError, classic, fractal, toy};
+use crate::spirograph::{Arm, Spirograph, SpirographError, classic_arms, fractal, toy};
 use macroquad::prelude::{BLACK, Color, WHITE};
 
 #[derive(Debug, Clone, PartialEq)]
@@ -30,8 +30,8 @@ pub struct Pen {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Shape {
+    /// The arms as written. The ring and wheels are worked out from them.
     Classic {
-        ring: f32,
         arms: Vec<Arm>,
     },
     Fractal {
@@ -51,23 +51,20 @@ pub enum Shape {
 impl Shape {
     fn to_spirograph(&self) -> Result<Spirograph, SpirographError> {
         match self {
-            Shape::Classic { ring, arms } => Ok(Spirograph {
-                ring_radius: *ring,
-                arms: arms.clone(),
-            }),
+            Shape::Classic { arms } => Spirograph::new(arms.clone()),
             Shape::Fractal {
                 length,
                 speed,
                 length_multiplier,
                 speed_multiplier,
                 iterations,
-            } => Ok(fractal(
+            } => fractal(
                 *length,
                 *speed,
                 *length_multiplier,
                 *speed_multiplier,
                 *iterations,
-            )),
+            ),
             Shape::Toy { ring, wheel, hole } => toy(*ring, *wheel, *hole),
         }
     }
@@ -87,7 +84,6 @@ pub fn _toy(ring: u32, wheel: u32, hole: f32) -> Document {
 }
 
 pub fn _classic() -> Document {
-    let Spirograph { ring_radius, arms } = classic();
     Document {
         background_color: WHITE,
         layers: vec![Layer {
@@ -96,8 +92,7 @@ pub fn _classic() -> Document {
                 thickness: 3.0,
             },
             shape: Shape::Classic {
-                ring: ring_radius,
-                arms,
+                arms: classic_arms(),
             },
         }],
     }

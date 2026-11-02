@@ -1,12 +1,11 @@
-# Wheels rolling around the outside of a fixed circle of radius 30: the
-# first arm is longer than the ring, so the wheel sits outside it.
+# Wheels rolling around the outside of a fixed ring. The arms make the ring
+# radius 30, and the first arm is longer, so the wheel sits outside it.
 background white
 
 # Cardioid: a wheel the same size as the fixed circle, pen on its rim.
 layer {
   pen red 3
   classic {
-    ring 30
     arm 60 speed 1
     arm 30 speed 2
   }
@@ -16,7 +15,6 @@ layer {
 layer {
   pen purple 3
   classic {
-    ring 30
     arm 45 speed 1
     arm 15 speed 3
   }

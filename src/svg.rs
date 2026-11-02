@@ -38,7 +38,7 @@ pub fn to_svg(doc: &Document, spirographs: &[Spirograph], size: f32) -> String {
         );
         for i in 0..=steps {
             let t = i as f32 / steps as f32 * period;
-            let point = pen_point(&spiro.arms, t);
+            let point = pen_point(spiro.arms(), t);
             let command = if i == 0 { 'M' } else { 'L' };
             let _ = write!(
                 svg,
@@ -105,10 +105,7 @@ mod tests {
     fn test_svg_circle_fits_the_image() {
         // One arm makes a circle. In a 200 px image the margin is 10 px, so
         // the circle starts on the right at x = 190, level with the centre.
-        let svg = svg_for(
-            "layer { pen black 1 classic { ring 10 arm 10 speed 1 } }",
-            200.0,
-        );
+        let svg = svg_for("layer { pen black 1 classic { arm 10 speed 1 } }", 200.0);
         assert!(svg.contains(r#"d="M190.0 100.0L"#), "{svg}");
     }
 }

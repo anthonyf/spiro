@@ -79,26 +79,28 @@ segments per frame, so they run more smoothly with `cargo run --release`.
 
 ## Core idea
 
-Every spirograph is a **ring size** plus a list of **spinning arms**. Each arm
-has a length, a whole-number speed, and a phase. The arms are joined end to
-end, and the pen is at the tip of the last one.
+Every spirograph is a list of **spinning arms**. Each arm has a length, a
+whole-number speed, and a phase. The arms are joined end to end, and the pen
+is at the tip of the last one.
 
 - **The curve** comes only from the arms. It closes after `2π / gcd(speeds)`.
-- **The wheels** are drawn for show, and are derived from the arms. Starting
-  from the ring, each wheel is centred at the end of its arm, with size
-  `|arm length − previous wheel|`. A wheel sits inside the previous one when
-  its arm is shorter than that wheel, and outside when it's longer, so the
-  side never has to be stored.
-- **The spokes** show each wheel turning as it rolls on the one before it,
-  without skidding. A wheel inside spins against its trip round, and a wheel
-  outside spins with it. An arm is the line between two wheel centres, not a
-  spoke, so it can turn a different way. In a toy, the pen arm and the spoke
-  turn together. In a fractal they don't: while each wheel rolls on the one
-  before it, they can't all be spokes, because a wheel carried by its
-  parent's spoke can't roll on that parent.
+- **The gear train** is worked out from the arms, and shown in the debug
+  view. Every arm but the last carries a **wheel** (red) at its end. The
+  wheel rolls on a **gear** (blue) at the start of its arm, which is fixed to
+  the arm before. The first gear is the **ring**, which stays still. The next
+  arm is a **spoke** of the wheel, so it turns with it. Turning the first arm
+  drives all the rest, as in a toy.
+- **The sizes** come from rolling without skidding. Seen from its gear, a
+  wheel's centre goes round at `turn` (its arm's speed minus the gear's), and
+  the wheel spins at `spin` (the next arm's speed minus the gear's). Then the
+  wheel's radius is `|length × turn / spin|` and the gear's is
+  `|length × (spin − turn) / spin|`. Depending on the speeds, the wheel sits
+  outside its gear, inside it (the gear is then a ring), or around it.
 
-Because the wheels are derived, the input can't describe wheels that fail to
-touch.
+For the toy, arms of 60 at speed 3 and 28.8 at speed −5 give back the
+36 wheel in the 96 ring. Because the ring and wheels are worked out, the input
+can't describe gears that skid or don't touch. The one impossible case is
+`spin = 0`, which would need an infinitely big wheel (see the rules below).
 
 ![Spirograph glossary: the toy (ring, wheel, hole, pen) next to the same
 curve drawn as two spinning arms](docs/glossary.svg)
@@ -111,12 +113,12 @@ holds only the values that are free to choose:
 
 | Shape | Inputs | Arms it produces | Ring |
 |---|---|---|---|
-| `classic` | a ring and a list of arms | the arms as written | as written |
-| `fractal` | first length and speed, a length multiplier, a speed multiplier, a count | each arm is the previous one times the multipliers | calculated: first length / (1 + length multiplier), so the wheels touch from outside |
-| `toy` | ring and wheel tooth counts, and the hole's distance from the wheel's centre | ring − wheel at speed wheel / g, then hole at speed −(ring − wheel) / g, where g = gcd(ring, wheel) | the ring's tooth count |
+| `classic` | a list of arms | the arms as written | worked out from the arms |
+| `fractal` | first length and speed, a length multiplier, a speed multiplier, a count | each arm is the previous one times the multipliers | worked out from the arms |
+| `toy` | ring and wheel tooth counts, and the hole's distance from the wheel's centre | ring − wheel at speed wheel / g, then hole at speed −(ring − wheel) / g, where g = gcd(ring, wheel) | the ring's tooth count, which the arms also give |
 
-The evaluator turns every shape into a ring plus a list of arms, and the
-renderer only ever sees that. How the drawing is viewed (for example, showing
+The evaluator turns every shape into a list of arms and the gear train
+worked out from them, and the renderer only ever sees that. How the drawing is viewed (for example, showing
 the arms and wheels) is a setting of the viewer, not part of the document.
 
 ## Syntax
@@ -128,7 +130,6 @@ background white
 layer {
   pen x008080 3               # teal, as a hex color
   classic {
-    ring 96
     arm 60 speed 3
     arm 28.8 speed -5
   }
@@ -162,7 +163,7 @@ document  = [ "background" color ] { layer }
 layer     = "layer" "{" pen shape "}"
 pen       = "pen" color decimal
 shape     = classic | toy | fractal
-classic   = "classic" "{" "ring" decimal { arm } "}"
+classic   = "classic" "{" { arm } "}"
 arm       = "arm" decimal "speed" whole [ "phase" decimal ]
 toy       = "toy" "ring" unsigned "wheel" unsigned "hole" decimal
 fractal   = "fractal" "{" "length" decimal  "speed" whole
@@ -183,10 +184,13 @@ The types can't express these, so they are reported as errors:
 
 - `toy`: the wheel can't be zero, and must be smaller than the ring.
   (Checked: `WheelIsZero` and `WheelTooBig`.)
-- `fractal`: the length multiplier can't be −1, because the ring calculation
-  would divide by zero. (Not checked yet.)
-- Every shape needs at least one arm with a non-zero speed, or the curve has
-  no period. (Not checked yet.)
+- Every shape needs at least one arm, and at least one arm needs a speed
+  other than 0, or the curve has no period. (Checked: `NoArms` and
+  `NoSpeed`.)
+- Two arms with one arm between them can't have the same speed, and arm 2
+  can't have speed 0 (the ring's speed). Either way, the wheel on the middle
+  arm would have to be infinitely big. For a fractal with 3 or more arms,
+  this rules out a speed multiplier of 1 or −1. (Checked: `SameSpeed`.)
 
 ### Syntax decisions
 
@@ -223,16 +227,18 @@ The types can't express these, so they are reported as errors:
 
 1. **Lexer:** text → tokens.
 2. **Parser:** tokens → syntax tree (hand-written recursive descent).
-3. **Evaluator:** document → layers, each a pen plus a ring and a list of
-   arms. Reports the rule errors above.
+3. **Evaluator:** document → layers, each a pen plus a list of arms and
+   their gear train. Reports the rule errors above.
 4. **Renderer:** macroquad on screen, or an SVG file.
 5. **Hot reload:** check the file's mtime each frame and re-render on save.
 
 ## Code layout
 
-- `src/spirograph.rs`: the maths. Arms, spirographs (period, reach, wheel
-  sizes and spins), pen positions, and the builders that turn `classic`, `fractal` and
-  `toy` inputs into arms, with `SpirographError` for invalid toys.
+- `src/spirograph.rs`: the maths. Arms, spirographs (the gear train,
+  period and reach), pen positions, and the builders that turn `classic`,
+  `fractal` and `toy` inputs into arms. A `Spirograph` can only be built by
+  `Spirograph::new`, which checks the rules above and returns a
+  `SpirographError` if one fails.
 - `src/document.rs`: the document model (documents, layers, pens, shapes) and
   evaluating a document into spirographs, plus example documents.
 - `src/lexer.rs`: text → tokens, each with a line and column.
@@ -241,7 +247,7 @@ The types can't express these, so they are reported as errors:
 - `src/error.rs`: `SpiroError`, which holds an error from any step (reading
   the file, lexing, parsing, or evaluating), so `?` works across them.
 - `src/render.rs`: drawing a spirograph with macroquad, and the display mode
-  (whether to show the ring, wheels, spokes and arms).
+  (whether to show the gear train and arms).
 - `src/svg.rs`: writes the finished curves as an SVG image, fitted the same
   way as the window.
 - `src/main.rs`: reads the command-line options, loads the `.spiro` file and
@@ -267,11 +273,11 @@ The types can't express these, so they are reported as errors:
       (Done: named and hex colors, layers and pens, all three shapes, and
       SVG export with `--svg`. Not done: PNG export and the stretch goals.)
 - [ ] Later: move the evaluator's checks into types, so invalid values
-      can't be built. For example, `NonZeroU32` for the toy's wheel (which
-      removes `WheelIsZero`), and a `Gears` type whose constructor checks
-      wheel < ring. The same applies to other rules (a non-zero speed, a
-      length multiplier that isn't −1). This needs modules, because a
-      private field only protects a value outside its own module.
+      can't be built. `Spirograph` already works this way: its fields are
+      private, so outside its module the only way to make one is
+      `Spirograph::new`. The toy could do the same, for example with
+      `NonZeroU32` for its wheel (which removes `WheelIsZero`), and a
+      `Gears` type whose constructor checks wheel < ring.
 
 Freeze the syntax before starting: no functions or type system.
 

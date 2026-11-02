@@ -108,7 +108,6 @@ background black
 layer {
   pen gold 2
   classic {
-    ring 80
     arm 60 speed 1
     arm 35 speed 19
     arm 25 speed -35
@@ -140,7 +139,6 @@ background black
 layer {
   pen orange 2
   classic {
-    ring 80
     arm 50 speed 7
     arm 35 speed -17
     arm 20 speed 31
@@ -370,7 +368,6 @@ background black
 layer {
   pen magenta 2
   classic {
-    ring 80
     arm 60 speed 1
     arm 30 speed 7
     arm 20 speed -17 phase 1.5708
@@ -401,7 +398,6 @@ background black
 layer {
   pen lime 2
   classic {
-    ring 80
     arm 60 speed 1
     arm 30 speed 6
     arm 20 speed -14
@@ -501,15 +497,14 @@ Cardioid and nephroid.
 <td valign="top">
 
 ```
-# Wheels rolling around the outside of a fixed circle of radius 30: the
-# first arm is longer than the ring, so the wheel sits outside it.
+# Wheels rolling around the outside of a fixed ring. The arms make the ring
+# radius 30, and the first arm is longer, so the wheel sits outside it.
 background white
 
 # Cardioid: a wheel the same size as the fixed circle, pen on its rim.
 layer {
   pen red 3
   classic {
-    ring 30
     arm 60 speed 1
     arm 30 speed 2
   }
@@ -519,7 +514,6 @@ layer {
 layer {
   pen purple 3
   classic {
-    ring 30
     arm 45 speed 1
     arm 15 speed 3
   }
@@ -549,7 +543,6 @@ background darkblue
 layer {
   pen gold 3
   classic {
-    ring 100
     arm 60 speed 2
     arm 40 speed -3
   }
@@ -642,7 +635,6 @@ background white
 layer {
   pen x008080 3               # teal, as a hex color
   classic {
-    ring 96
     arm 60 speed 3
     arm 28.8 speed -5
   }

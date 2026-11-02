@@ -262,14 +262,12 @@ impl<'a> Parser<'a> {
     fn classic(&mut self) -> Result<Shape, ParseError> {
         self.expect_word("classic")?;
         self.expect(&TokenKind::OpenBrace)?;
-        self.expect_word("ring")?;
-        let ring = self.decimal()?;
         let mut arms = Vec::new();
         while self.peek_word("arm") {
             arms.push(self.arm()?);
         }
         self.expect(&TokenKind::CloseBrace)?;
-        Ok(Shape::Classic { ring, arms })
+        Ok(Shape::Classic { arms })
     }
 
     fn fractal(&mut self) -> Result<Shape, ParseError> {
@@ -480,7 +478,6 @@ mod tests {
     #[test]
     fn test_parser_classic() {
         let tokens = lex("classic {
-    ring 96
     arm 60 speed 3
     arm 28.8 speed -5
   }")
@@ -490,7 +487,6 @@ mod tests {
         assert_eq!(
             shape,
             Shape::Classic {
-                ring: 96.0,
                 arms: vec![
                     Arm {
                         length: 60.0,
@@ -509,21 +505,15 @@ mod tests {
 
     #[test]
     fn test_parser_classic_no_arms() {
-        let tokens = lex("classic { ring 96 }").unwrap();
+        let tokens = lex("classic { }").unwrap();
         let mut parser = Parser::new(&tokens);
         let shape = parser.classic().unwrap();
-        assert_eq!(
-            shape,
-            Shape::Classic {
-                ring: 96.0,
-                arms: vec![]
-            }
-        );
+        assert_eq!(shape, Shape::Classic { arms: vec![] });
     }
 
     #[test]
     fn test_parser_classic_missing_closing_brace() {
-        let tokens = lex("classic { ring 96 arm 60 speed 3").unwrap();
+        let tokens = lex("classic { arm 60 speed 3").unwrap();
         let mut parser = Parser::new(&tokens);
         let error = parser.classic().unwrap_err();
         assert_eq!(
@@ -576,7 +566,6 @@ mod tests {
     #[test]
     fn test_parser_shape_classic() {
         let tokens = lex("classic {
-            ring 96
             arm 60 speed 3
             arm 28.8 speed -5
         }")
@@ -586,7 +575,6 @@ mod tests {
         assert_eq!(
             shape,
             Shape::Classic {
-                ring: 96.0,
                 arms: vec![
                     Arm {
                         length: 60.0,
@@ -635,7 +623,6 @@ mod tests {
 layer {
   pen x008080 1.5             # teal, as a hex color
   classic {
-    ring 96
     arm 60 speed 3
     arm 28.8 speed -5
   }
@@ -675,11 +662,22 @@ layer {
             "background white
              layer {
                pen black 3
-               classic { ring 96 arm 60 speed 3 arm 28.8 speed -5 }
+               classic { arm 60 speed 3 arm 28.8 speed -5 }
              }",
         )
         .unwrap();
         assert_eq!(doc, _classic());
+    }
+
+    #[test]
+    fn test_parse_source_classic_has_no_ring() {
+        // The ring is worked out from the arms, so it can't be written.
+        let error =
+            parse_source("layer { pen red 1 classic { ring 96 arm 60 speed 3 } }").unwrap_err();
+        assert_eq!(
+            error.to_string(),
+            "line 1, column 29: expected '}', found 'ring'"
+        );
     }
 
     #[test]

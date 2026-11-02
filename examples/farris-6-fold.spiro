@@ -7,7 +7,6 @@ background black
 layer {
   pen magenta 2
   classic {
-    ring 80
     arm 60 speed 1
     arm 30 speed 7
     arm 20 speed -17 phase 1.5708

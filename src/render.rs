@@ -22,7 +22,7 @@ pub fn draw_spirograph(
     time: f32,
     scale: f32,
 ) {
-    let Spirograph { ring_radius, arms } = spiro;
+    let arms = spiro.arms();
     let draw_seconds = 10.0;
     let steps = ((spiro.distance() * scale) as u32 / 2).max(1);
     let period = spiro.period();
@@ -47,37 +47,33 @@ pub fn draw_spirograph(
     }
 
     if let DisplayMode::Debug = display_mode {
-        // draw the individual arms, actual size
+        // draw the gear train, actual size
         let t = period * progress;
         let points = pen_points(arms, t);
-        let mut prev_point = Point { x: 0.0, y: 0.0 };
-        draw_circle_lines(prev_point.x, prev_point.y, *ring_radius, thickness, BLUE);
+        let origin = Point { x: 0.0, y: 0.0 };
+        draw_circle_lines(origin.x, origin.y, spiro.ring_radius(), thickness, BLUE);
 
-        let wheel_sizes = spiro.wheel_sizes();
-        let wheel_spins = spiro.wheel_spins();
+        // Wheel i is on the end of arm i, and rolls on a gear at the start
+        // of the arm. The first gear is the ring, drawn above.
+        for (i, wheel) in spiro.wheels().iter().enumerate() {
+            let centre = points[i];
+            if i > 0 {
+                let gear_centre = points[i - 1];
+                draw_circle_lines(
+                    gear_centre.x,
+                    gear_centre.y,
+                    wheel.gear_radius,
+                    thickness,
+                    BLUE,
+                );
+            }
+            draw_circle_lines(centre.x, centre.y, wheel.radius, thickness, RED);
+        }
 
-        for (((point, wheel_radius), spin), arm) in points
-            .iter()
-            .zip(wheel_sizes.iter())
-            .zip(wheel_spins.iter())
-            .zip(arms.iter())
-        {
-            // draw the wheel
-            draw_circle_lines(point.x, point.y, *wheel_radius, thickness, RED);
-
-            // draw a spoke, turning as the wheel rolls. It starts lined up
-            // with its arm.
-            let spoke_angle = arm.phase + spin * t;
-            draw_line(
-                point.x,
-                point.y,
-                point.x + wheel_radius * spoke_angle.cos(),
-                point.y + wheel_radius * spoke_angle.sin(),
-                thickness,
-                RED,
-            );
-
-            // draw the arm
+        // draw the arms. Each arm after the first is a spoke of the wheel at
+        // its start, so it shows that wheel turning.
+        let mut prev_point = origin;
+        for point in &points {
             draw_line(
                 prev_point.x,
                 prev_point.y,

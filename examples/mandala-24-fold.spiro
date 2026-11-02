@@ -6,7 +6,6 @@ background black
 layer {
   pen orange 2
   classic {
-    ring 80
     arm 50 speed 7
     arm 35 speed -17
     arm 20 speed 31

@@ -4,7 +4,6 @@ background white
 layer {
   pen x008080 3               # teal, as a hex color
   classic {
-    ring 96
     arm 60 speed 3
     arm 28.8 speed -5
   }
