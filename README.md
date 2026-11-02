@@ -261,23 +261,34 @@ The types can't express these, so they are reported as errors:
 
 ## Plan
 
-- [x] Day 1: renderer from hardcoded arms; classic and fractal curves; stop
-      when the curve closes (`2π / gcd` of the speeds). Also done: animated
-      drawing, spinning arms, touching wheels, and fitting the window.
-- [ ] Day 2: lexer, parser, evaluator; errors with line/column
-      ([`ariadne`](https://crates.io/crates/ariadne)); hot reload.
-      (Done: the lexer, parser and evaluator, loading a file from the
-      command line, and one-line error messages with line and column. Still
-      to do: ariadne and hot reload.)
-- [ ] Day 3: colors, SVG/PNG export. Stretch: web build, `let`.
-      (Done: named and hex colors, layers and pens, all three shapes, and
-      SVG export with `--svg`. Not done: PNG export and the stretch goals.)
+- [x] Day 1: the renderer.
+  - [x] Renderer from hardcoded arms
+  - [x] Classic and fractal curves
+  - [x] Stop when the curve closes (`2π / gcd` of the speeds)
+  - [x] Also: animated drawing, spinning arms, wheels, and fitting the
+        window
+- [x] Day 2: the language.
+  - [x] Lexer, parser and evaluator
+  - [x] Loading a `.spiro` file from the command line
+  - [x] One-line error messages with line and column
+- [x] Day 3: output.
+  - [x] Colors: named and hex
+  - [x] Layers and pens, and all three shapes
+  - [x] SVG export with `--svg`, and a gallery of every example
+- [ ] Follow-ups: what days 2 and 3 didn't get to.
+  - [ ] Error display with [`ariadne`](https://crates.io/crates/ariadne)
+  - [ ] Hot reload
+  - [ ] PNG export
+  - [ ] Stretch: web build
+  - [ ] Stretch: `let`
 - [ ] Later: move the evaluator's checks into types, so invalid values
-      can't be built. `Spirograph` already works this way: its fields are
-      private, so outside its module the only way to make one is
-      `Spirograph::new`. The toy could do the same, for example with
-      `NonZeroU32` for its wheel (which removes `WheelIsZero`), and a
-      `Gears` type whose constructor checks wheel < ring.
+      can't be built.
+  - [x] `Spirograph`: its fields are private, so outside its module the
+        only way to make one is `Spirograph::new`, which checks the gear
+        train
+  - [ ] The toy: for example, `NonZeroU32` for its wheel (which removes
+        `WheelIsZero`), and a `Gears` type whose constructor checks
+        wheel < ring
 
 Freeze the syntax before starting: no functions or type system.
 
