@@ -37,8 +37,8 @@ pub enum Shape {
     Fractal {
         length: f32,
         speed: i32,
-        length_multiplyer: f32,
-        speed_multiplyer: i32,
+        length_multiplier: f32,
+        speed_multiplier: i32,
         iterations: u32,
     },
     Toy {
@@ -58,14 +58,14 @@ impl Shape {
             Shape::Fractal {
                 length,
                 speed,
-                length_multiplyer,
-                speed_multiplyer,
+                length_multiplier,
+                speed_multiplier,
                 iterations,
             } => Ok(fractal(
                 *length,
                 *speed,
-                *length_multiplyer,
-                *speed_multiplyer,
+                *length_multiplier,
+                *speed_multiplier,
                 *iterations,
             )),
             Shape::Toy { ring, wheel, hole } => toy(*ring, *wheel, *hole),
@@ -106,8 +106,8 @@ pub fn _classic() -> Document {
 pub fn _fractal(
     start_length: f32,
     start_speed: i32,
-    next_length_multiplyer: f32,
-    next_speed_multiplyer: i32,
+    next_length_multiplier: f32,
+    next_speed_multiplier: i32,
     iterations: u32,
     background_color: Color,
 ) -> Document {
@@ -121,8 +121,8 @@ pub fn _fractal(
             shape: Shape::Fractal {
                 length: start_length,
                 speed: start_speed,
-                length_multiplyer: next_length_multiplyer,
-                speed_multiplyer: next_speed_multiplyer,
+                length_multiplier: next_length_multiplier,
+                speed_multiplier: next_speed_multiplier,
                 iterations,
             },
         }],

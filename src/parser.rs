@@ -65,10 +65,10 @@ impl<'a> Parser<'a> {
     }
 
     fn peek_word(&self, text: &str) -> bool {
-        if let Some(token) = self.peek() {
-            if let TokenKind::Word(word) = &token.kind {
-                return word == text;
-            }
+        if let Some(token) = self.peek()
+            && let TokenKind::Word(word) = &token.kind
+        {
+            return word == text;
         }
         false
     }
@@ -242,6 +242,43 @@ impl<'a> Parser<'a> {
         }
         self.expect(&TokenKind::CloseBrace)?;
         Ok(Shape::Classic { ring, arms })
+    }
+
+    fn fractal(&mut self) -> Result<Shape, ParseError> {
+        self.expect_word("fractal")?;
+        self.expect(&TokenKind::OpenBrace)?;
+        self.expect_word("length")?;
+        let length = self.decimal()?;
+        self.expect_word("speed")?;
+        let speed = self.integer()?;
+        self.expect_word("length_multiplier")?;
+        let length_multiplier = self.decimal()?;
+        self.expect_word("speed_multiplier")?;
+        let speed_multiplier = self.integer()?;
+        self.expect_word("count")?;
+        let iterations = self.unsigned()?;
+        self.expect(&TokenKind::CloseBrace)?;
+        Ok(Shape::Fractal {
+            length,
+            speed,
+            length_multiplier,
+            speed_multiplier,
+            iterations,
+        })
+    }
+
+    fn shape(&mut self) -> Result<Shape, ParseError> {
+        let word_token = self
+            .peek()
+            .ok_or_else(|| ParseError::UnexpectedEndOfInput {
+                expected: "toy, fractal or classic".to_string(),
+            })?;
+        match word_token.kind {
+            TokenKind::Word(ref w) if w == "toy" => self.toy(),
+            TokenKind::Word(ref w) if w == "classic" => self.classic(),
+            TokenKind::Word(ref w) if w == "fractal" => self.fractal(),
+            _ => Err(unexpected_token(word_token, "toy, fractal or classic")),
+        }
     }
 }
 
@@ -425,6 +462,112 @@ mod tests {
             Shape::Classic {
                 ring: 96.0,
                 arms: vec![]
+            }
+        );
+    }
+
+    #[test]
+    fn test_parser_classic_missing_closing_brace() {
+        let tokens = lex("classic { ring 96 arm 60 speed 3").unwrap();
+        let mut parser = Parser::new(&tokens);
+        let error = parser.classic().unwrap_err();
+        assert_eq!(
+            error,
+            ParseError::UnexpectedEndOfInput {
+                expected: "CloseBrace".to_string()
+            }
+        );
+    }
+
+    #[test]
+    fn test_parser_fractal() {
+        let tokens = lex("fractal {
+    length 60                 # the first arm...
+    speed -3
+    length_multiplier 1/3     # ...each next one a third as long...
+    speed_multiplier -4       # ...and 4x faster, reversed
+    count 7
+  }")
+        .unwrap();
+        let mut parser = Parser::new(&tokens);
+        let shape = parser.fractal().unwrap();
+        assert_eq!(
+            shape,
+            Shape::Fractal {
+                length: 60.0,
+                speed: -3,
+                length_multiplier: 1.0 / 3.0,
+                speed_multiplier: -4,
+                iterations: 7
+            }
+        );
+    }
+
+    #[test]
+    fn test_parser_shape_toy() {
+        let tokens = lex("toy ring 96 wheel 36 hole 28.8").unwrap();
+        let mut parser = Parser::new(&tokens);
+        let shape = parser.shape().unwrap();
+        assert_eq!(
+            shape,
+            Shape::Toy {
+                ring: 96,
+                wheel: 36,
+                hole: 28.8
+            }
+        );
+    }
+
+    #[test]
+    fn test_parser_shape_classic() {
+        let tokens = lex("classic {
+            ring 96
+            arm 60 speed 3
+            arm 28.8 speed -5
+        }")
+        .unwrap();
+        let mut parser = Parser::new(&tokens);
+        let shape = parser.shape().unwrap();
+        assert_eq!(
+            shape,
+            Shape::Classic {
+                ring: 96.0,
+                arms: vec![
+                    Arm {
+                        length: 60.0,
+                        speed: 3,
+                        phase: 0.0
+                    },
+                    Arm {
+                        length: 28.8,
+                        speed: -5,
+                        phase: 0.0
+                    },
+                ]
+            }
+        );
+    }
+
+    #[test]
+    fn test_parser_shape_fractal() {
+        let tokens = lex("fractal {
+            length 60
+            speed -3
+            length_multiplier 1/3
+            speed_multiplier -4
+            count 7
+        }")
+        .unwrap();
+        let mut parser = Parser::new(&tokens);
+        let shape = parser.shape().unwrap();
+        assert_eq!(
+            shape,
+            Shape::Fractal {
+                length: 60.0,
+                speed: -3,
+                length_multiplier: 1.0 / 3.0,
+                speed_multiplier: -4,
+                iterations: 7
             }
         );
     }

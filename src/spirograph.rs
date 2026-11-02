@@ -111,8 +111,8 @@ pub fn classic() -> Spirograph {
 pub fn fractal(
     length: f32,
     speed: i32,
-    length_multiplyer: f32,
-    speed_multiplyer: i32,
+    length_multiplier: f32,
+    speed_multiplier: i32,
     iterations: u32,
 ) -> Spirograph {
     let mut arms = Vec::new();
@@ -125,10 +125,10 @@ pub fn fractal(
             speed: current_speed,
             ..Default::default()
         });
-        current_length *= length_multiplyer;
-        current_speed *= speed_multiplyer;
+        current_length *= length_multiplier;
+        current_speed *= speed_multiplier;
     }
-    let ring_radius = length / (1.0 + length_multiplyer);
+    let ring_radius = length / (1.0 + length_multiplier);
 
     Spirograph { ring_radius, arms }
 }
