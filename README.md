@@ -17,26 +17,55 @@ spiro prints where it is and exits, for example:
 examples/broken.spiro: line 2, column 7: expected color, found 'teal'
 ```
 
-### Examples
+To save the finished drawing as an SVG image instead of opening a window:
 
-| File | What it shows |
-|---|---|
-| `coding-train.spiro` | The Coding Train's fractal spirograph: each arm a third as long and 4× faster, reversed (5-fold symmetry) |
-| `fractal-4-fold.spiro` | The same fractal with a speed multiplier of −3 (4-fold symmetry) |
-| `fractal-6-fold.spiro` | A speed multiplier of −5 (6-fold symmetry) |
-| `farris-6-fold.spiro` | Frank Farris's "wheels on wheels" curve with speeds 1, 7, −17 |
-| `farris-5-fold.spiro` | A Farris-style curve with speeds 1, 6, −14 |
-| `rosette.spiro` | Three toy wheels in one ring, drawn on top of each other |
-| `cusps.spiro` | A deltoid, an astroid, and an ellipse from the toy |
-| `epicycloids.spiro` | A cardioid and a nephroid: wheels rolling around the outside |
-| `star.spiro` | A looped five-pointed star from two arms |
-| `dense-toy.spiro` | A 52-tooth wheel in a 105-tooth ring: 105 loops that fill the circle |
-| `string-art.spiro` | A 35-tooth wheel in a 96-tooth ring: 96 overlapping loops |
-| `fractal-7-fold.spiro`, `fractal-8-fold.spiro` | Fractals with speed multipliers −6 and −7, with slower-shrinking arms for more detail |
-| `fractal-same-direction.spiro` | A fractal whose arms all spin the same way (multiplier 5) |
-| `farris-18-fold.spiro` | A mandala from speeds 1, 19, −35 |
-| `mandala-24-fold.spiro` | A mandala from speeds 7, −17, 31 |
-| `toy.spiro`, `fractal.spiro`, `readme.spiro` | The examples from this README |
+```bash
+cargo run --release -- examples/dense-toy.spiro --svg dense-toy.svg --size 800
+```
+
+`--size` is the image's width and height in pixels (default 800). The SVG
+has the curves only, without the ring, wheels and arms. To regenerate the
+gallery below:
+
+```bash
+for f in examples/*.spiro; do cargo run --release -q -- "$f" --svg "docs/gallery/$(basename "$f" .spiro).svg"; done
+```
+
+### Gallery
+
+Every file in `examples/`, exported with `--svg`:
+
+<table>
+  <tr>
+    <td align="center" width="25%"><img src="docs/gallery/dense-toy.svg" width="180" alt="52-tooth wheel in a 105-tooth ring: 105 loops"><br><code>dense-toy.spiro</code><br>52-tooth wheel in a 105-tooth ring: 105 loops</td>
+    <td align="center" width="25%"><img src="docs/gallery/fractal-7-fold.svg" width="180" alt="Fractal, speed multiplier −6"><br><code>fractal-7-fold.spiro</code><br>Fractal, speed multiplier −6</td>
+    <td align="center" width="25%"><img src="docs/gallery/farris-18-fold.svg" width="180" alt="Mandala from speeds 1, 19, −35"><br><code>farris-18-fold.spiro</code><br>Mandala from speeds 1, 19, −35</td>
+    <td align="center" width="25%"><img src="docs/gallery/mandala-24-fold.svg" width="180" alt="Mandala from speeds 7, −17, 31"><br><code>mandala-24-fold.spiro</code><br>Mandala from speeds 7, −17, 31</td>
+  </tr>
+  <tr>
+    <td align="center" width="25%"><img src="docs/gallery/coding-train.svg" width="180" alt="The Coding Train's fractal spirograph"><br><code>coding-train.spiro</code><br>The Coding Train's fractal spirograph</td>
+    <td align="center" width="25%"><img src="docs/gallery/fractal-8-fold.svg" width="180" alt="Fractal, speed multiplier −7"><br><code>fractal-8-fold.spiro</code><br>Fractal, speed multiplier −7</td>
+    <td align="center" width="25%"><img src="docs/gallery/fractal-same-direction.svg" width="180" alt="Fractal with every arm spinning the same way"><br><code>fractal-same-direction.spiro</code><br>Fractal with every arm spinning the same way</td>
+    <td align="center" width="25%"><img src="docs/gallery/string-art.svg" width="180" alt="35-tooth wheel in a 96-tooth ring: 96 loops"><br><code>string-art.spiro</code><br>35-tooth wheel in a 96-tooth ring: 96 loops</td>
+  </tr>
+  <tr>
+    <td align="center" width="25%"><img src="docs/gallery/fractal-4-fold.svg" width="180" alt="Fractal, speed multiplier −3"><br><code>fractal-4-fold.spiro</code><br>Fractal, speed multiplier −3</td>
+    <td align="center" width="25%"><img src="docs/gallery/fractal-6-fold.svg" width="180" alt="Fractal, speed multiplier −5"><br><code>fractal-6-fold.spiro</code><br>Fractal, speed multiplier −5</td>
+    <td align="center" width="25%"><img src="docs/gallery/farris-6-fold.svg" width="180" alt="Farris's wheels on wheels: speeds 1, 7, −17"><br><code>farris-6-fold.spiro</code><br>Farris's wheels on wheels: speeds 1, 7, −17</td>
+    <td align="center" width="25%"><img src="docs/gallery/farris-5-fold.svg" width="180" alt="Farris-style: speeds 1, 6, −14"><br><code>farris-5-fold.spiro</code><br>Farris-style: speeds 1, 6, −14</td>
+  </tr>
+  <tr>
+    <td align="center" width="25%"><img src="docs/gallery/rosette.svg" width="180" alt="Three toy wheels in one ring"><br><code>rosette.spiro</code><br>Three toy wheels in one ring</td>
+    <td align="center" width="25%"><img src="docs/gallery/cusps.svg" width="180" alt="Deltoid, astroid and ellipse"><br><code>cusps.spiro</code><br>Deltoid, astroid and ellipse</td>
+    <td align="center" width="25%"><img src="docs/gallery/epicycloids.svg" width="180" alt="Cardioid and nephroid"><br><code>epicycloids.spiro</code><br>Cardioid and nephroid</td>
+    <td align="center" width="25%"><img src="docs/gallery/star.svg" width="180" alt="Five-pointed star from two arms"><br><code>star.spiro</code><br>Five-pointed star from two arms</td>
+  </tr>
+  <tr>
+    <td align="center" width="25%"><img src="docs/gallery/toy.svg" width="180" alt="Two toy wheels in a 96-tooth ring"><br><code>toy.spiro</code><br>Two toy wheels in a 96-tooth ring</td>
+    <td align="center" width="25%"><img src="docs/gallery/fractal.svg" width="180" alt="The README's fractal"><br><code>fractal.spiro</code><br>The README's fractal</td>
+    <td align="center" width="25%"><img src="docs/gallery/readme.svg" width="180" alt="The README example: classic, toy and fractal"><br><code>readme.spiro</code><br>The README example: classic, toy and fractal</td>
+  </tr>
+</table>
 
 A fractal or Farris curve has `m`-fold symmetry when all its speeds leave the
 same remainder when divided by `m`. For a fractal whose speed multiplier is
@@ -177,8 +206,8 @@ The types can't express these, so they are reported as errors:
     `x` instead of `#` avoids a clash with comments.
 - **Background:** an optional `background <color>` line at the top of the
   file. The default is `white`.
-- **Canvas size** is left for export (Day 3). On screen, the drawing fits
-  the window.
+- **Canvas size** isn't part of the file. On screen, the drawing fits the
+  window; for SVG export, `--size` sets the image size.
 - **`toy` hole** is a distance from the wheel's centre, as in
   `hole 28.8`.
 
@@ -188,7 +217,7 @@ The types can't express these, so they are reported as errors:
 2. **Parser:** tokens → syntax tree (hand-written recursive descent).
 3. **Evaluator:** document → layers, each a pen plus a ring and a list of
    arms. Reports the rule errors above.
-4. **Renderer:** macroquad on screen, SVG/PNG export behind a trait.
+4. **Renderer:** macroquad on screen, or an SVG file.
 5. **Hot reload:** check the file's mtime each frame and re-render on save.
 
 ## Code layout
@@ -205,11 +234,15 @@ The types can't express these, so they are reported as errors:
   the file, lexing, parsing, or evaluating), so `?` works across them.
 - `src/render.rs`: drawing a spirograph with macroquad, and the display mode
   (whether to show the ring, wheels and arms).
-- `src/main.rs`: loads the `.spiro` file named on the command line, evaluates
-  it once, then runs the window loop and the camera.
+- `src/svg.rs`: writes the finished curves as an SVG image, fitted the same
+  way as the window.
+- `src/main.rs`: reads the command-line options, loads the `.spiro` file and
+  evaluates it once, then either writes an SVG or runs the window loop and
+  the camera.
 - `src/test_utils.rs`: test-only helpers, including `assert_close!`.
 - `examples/`: example `.spiro` files. A test checks that every one of them
   parses and evaluates.
+- `docs/gallery/`: an SVG of each example, shown in the gallery above.
 
 ## Plan
 
@@ -222,9 +255,8 @@ The types can't express these, so they are reported as errors:
       command line, and one-line error messages with line and column. Still
       to do: ariadne and hot reload.)
 - [ ] Day 3: colors, SVG/PNG export. Stretch: web build, `let`.
-      (Already done in Rust: the document model with layers and pens, all
-      three shapes, and evaluating a document once into spirographs, with
-      errors returned as `Result`.)
+      (Done: named and hex colors, layers and pens, all three shapes, and
+      SVG export with `--svg`. Not done: PNG export and the stretch goals.)
 - [ ] Later: move the evaluator's checks into types, so invalid values
       can't be built. For example, `NonZeroU32` for the toy's wheel (which
       removes `WheelIsZero`), and a `Gears` type whose constructor checks

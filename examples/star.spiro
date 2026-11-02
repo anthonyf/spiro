@@ -1,5 +1,5 @@
 # Two arms turning in opposite directions at speeds 2 and -3 draw a
-# five-pointed star with loops.
+# five-pointed star with curved sides.
 background darkblue
 
 layer {
