@@ -1,0 +1,10 @@
+# A 52-tooth wheel in a 105-tooth ring. 52 and 105 share no factor, so the
+# wheel goes round 52 times before the pen gets back to the start, drawing
+# 105 loops. With the pen near the wheel's rim, the loops sweep in almost
+# to the centre and fill the whole circle.
+background black
+
+layer {
+  pen skyblue 1.5
+  toy ring 105 wheel 52 hole 50
+}

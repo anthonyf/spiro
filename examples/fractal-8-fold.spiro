@@ -1,0 +1,14 @@
+# A fractal with a speed multiplier of -7 (8-fold symmetry). Each arm is half
+# as long as the last, so four arms are enough to fill the screen with lace.
+background black
+
+layer {
+  pen lime 2
+  fractal {
+    length 60
+    speed 1
+    length_multiplier 1/2
+    speed_multiplier -7
+    count 4
+  }
+}

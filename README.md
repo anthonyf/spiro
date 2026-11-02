@@ -30,11 +30,22 @@ examples/broken.spiro: line 2, column 7: expected color, found 'teal'
 | `cusps.spiro` | A deltoid, an astroid, and an ellipse from the toy |
 | `epicycloids.spiro` | A cardioid and a nephroid: wheels rolling around the outside |
 | `star.spiro` | A looped five-pointed star from two arms |
+| `dense-toy.spiro` | A 52-tooth wheel in a 105-tooth ring: 105 loops that fill the circle |
+| `string-art.spiro` | A 35-tooth wheel in a 96-tooth ring: 96 overlapping loops |
+| `fractal-7-fold.spiro`, `fractal-8-fold.spiro` | Fractals with speed multipliers −6 and −7, with slower-shrinking arms for more detail |
+| `fractal-same-direction.spiro` | A fractal whose arms all spin the same way (multiplier 5) |
+| `farris-18-fold.spiro` | A mandala from speeds 1, 19, −35 |
+| `mandala-24-fold.spiro` | A mandala from speeds 7, −17, 31 |
 | `toy.spiro`, `fractal.spiro`, `readme.spiro` | The examples from this README |
 
 A fractal or Farris curve has `m`-fold symmetry when all its speeds leave the
 same remainder when divided by `m`. For a fractal whose speed multiplier is
 `−k`, that gives `k + 1`-fold symmetry.
+
+A toy curve takes longest to close when the ring and wheel tooth counts share
+no factor: the wheel then goes all the way round the ring `wheel` times and
+draws `ring` loops. The densest examples draw tens of thousands of line
+segments per frame, so they run more smoothly with `cargo run --release`.
 
 ## Core idea
 

@@ -1,0 +1,15 @@
+# A fractal whose arms all spin the same way (a positive multiplier of 5).
+# The speeds 1, 5, 25, ... are all 1 more than a multiple of 4, so the curve
+# has 4-fold symmetry, with loops that bulge outwards instead of in.
+background black
+
+layer {
+  pen pink 2
+  fractal {
+    length 60
+    speed 1
+    length_multiplier 1/2
+    speed_multiplier 5
+    count 5
+  }
+}

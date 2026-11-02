@@ -1,0 +1,13 @@
+# A Farris-style mandala: the speeds 1, 19 and -35 are all 1 more than a
+# multiple of 18, so the curve has 18-fold symmetry.
+background black
+
+layer {
+  pen gold 2
+  classic {
+    ring 80
+    arm 60 speed 1
+    arm 35 speed 19
+    arm 25 speed -35
+  }
+}

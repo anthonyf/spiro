@@ -1,0 +1,9 @@
+# A 35-tooth wheel in a 96-tooth ring: 35 and 96 share no factor, so the
+# curve makes 96 loops before it closes, and the overlapping lines look
+# like string art.
+background darkblue
+
+layer {
+  pen gold 1.5
+  toy ring 96 wheel 35 hole 30
+}

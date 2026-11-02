@@ -1,0 +1,14 @@
+# A fractal with a speed multiplier of -6, so 7-fold symmetry. The arms only
+# shrink to 2/5 each time, so the fast small arms still add visible detail.
+background black
+
+layer {
+  pen violet 2
+  fractal {
+    length 60
+    speed 1
+    length_multiplier 2/5
+    speed_multiplier -6
+    count 5
+  }
+}

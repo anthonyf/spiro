@@ -1,0 +1,14 @@
+# Three arms with speeds 7, -17 and 31. All three are 7 more than a multiple
+# of 24, so the curve has 24-fold symmetry, and since they share no common
+# factor it only closes after a full turn.
+background black
+
+layer {
+  pen orange 2
+  classic {
+    ring 80
+    arm 50 speed 7
+    arm 35 speed -17
+    arm 20 speed 31
+  }
+}
