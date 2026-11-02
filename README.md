@@ -33,37 +33,38 @@ for f in examples/*.spiro; do cargo run --release -q -- "$f" --svg "docs/gallery
 
 ### Gallery
 
-Every file in `examples/`, exported with `--svg`:
+Every file in `examples/`, exported with `--svg`. Click a picture to see its
+source in [EXAMPLES.md](EXAMPLES.md).
 
 <table>
   <tr>
-    <td align="center" width="25%"><img src="docs/gallery/dense-toy.svg" width="180" alt="52-tooth wheel in a 105-tooth ring: 105 loops"><br><code>dense-toy.spiro</code><br>52-tooth wheel in a 105-tooth ring: 105 loops</td>
-    <td align="center" width="25%"><img src="docs/gallery/fractal-7-fold.svg" width="180" alt="Fractal, speed multiplier −6"><br><code>fractal-7-fold.spiro</code><br>Fractal, speed multiplier −6</td>
-    <td align="center" width="25%"><img src="docs/gallery/farris-18-fold.svg" width="180" alt="Mandala from speeds 1, 19, −35"><br><code>farris-18-fold.spiro</code><br>Mandala from speeds 1, 19, −35</td>
-    <td align="center" width="25%"><img src="docs/gallery/mandala-24-fold.svg" width="180" alt="Mandala from speeds 7, −17, 31"><br><code>mandala-24-fold.spiro</code><br>Mandala from speeds 7, −17, 31</td>
+    <td align="center" width="25%"><a href="EXAMPLES.md#dense-toy"><img src="docs/gallery/dense-toy.svg" width="180" alt="52-tooth wheel in a 105-tooth ring: 105 loops"></a><br><code>dense-toy.spiro</code><br>52-tooth wheel in a 105-tooth ring: 105 loops</td>
+    <td align="center" width="25%"><a href="EXAMPLES.md#fractal-7-fold"><img src="docs/gallery/fractal-7-fold.svg" width="180" alt="Fractal, speed multiplier −6"></a><br><code>fractal-7-fold.spiro</code><br>Fractal, speed multiplier −6</td>
+    <td align="center" width="25%"><a href="EXAMPLES.md#farris-18-fold"><img src="docs/gallery/farris-18-fold.svg" width="180" alt="Mandala from speeds 1, 19, −35"></a><br><code>farris-18-fold.spiro</code><br>Mandala from speeds 1, 19, −35</td>
+    <td align="center" width="25%"><a href="EXAMPLES.md#mandala-24-fold"><img src="docs/gallery/mandala-24-fold.svg" width="180" alt="Mandala from speeds 7, −17, 31"></a><br><code>mandala-24-fold.spiro</code><br>Mandala from speeds 7, −17, 31</td>
   </tr>
   <tr>
-    <td align="center" width="25%"><img src="docs/gallery/coding-train.svg" width="180" alt="The Coding Train's fractal spirograph"><br><code>coding-train.spiro</code><br>The Coding Train's fractal spirograph</td>
-    <td align="center" width="25%"><img src="docs/gallery/fractal-8-fold.svg" width="180" alt="Fractal, speed multiplier −7"><br><code>fractal-8-fold.spiro</code><br>Fractal, speed multiplier −7</td>
-    <td align="center" width="25%"><img src="docs/gallery/fractal-same-direction.svg" width="180" alt="Fractal with every arm spinning the same way"><br><code>fractal-same-direction.spiro</code><br>Fractal with every arm spinning the same way</td>
-    <td align="center" width="25%"><img src="docs/gallery/string-art.svg" width="180" alt="35-tooth wheel in a 96-tooth ring: 96 loops"><br><code>string-art.spiro</code><br>35-tooth wheel in a 96-tooth ring: 96 loops</td>
+    <td align="center" width="25%"><a href="EXAMPLES.md#coding-train"><img src="docs/gallery/coding-train.svg" width="180" alt="The Coding Train's fractal spirograph"></a><br><code>coding-train.spiro</code><br>The Coding Train's fractal spirograph</td>
+    <td align="center" width="25%"><a href="EXAMPLES.md#fractal-8-fold"><img src="docs/gallery/fractal-8-fold.svg" width="180" alt="Fractal, speed multiplier −7"></a><br><code>fractal-8-fold.spiro</code><br>Fractal, speed multiplier −7</td>
+    <td align="center" width="25%"><a href="EXAMPLES.md#fractal-same-direction"><img src="docs/gallery/fractal-same-direction.svg" width="180" alt="Fractal with every arm spinning the same way"></a><br><code>fractal-same-direction.spiro</code><br>Fractal with every arm spinning the same way</td>
+    <td align="center" width="25%"><a href="EXAMPLES.md#string-art"><img src="docs/gallery/string-art.svg" width="180" alt="35-tooth wheel in a 96-tooth ring: 96 loops"></a><br><code>string-art.spiro</code><br>35-tooth wheel in a 96-tooth ring: 96 loops</td>
   </tr>
   <tr>
-    <td align="center" width="25%"><img src="docs/gallery/fractal-4-fold.svg" width="180" alt="Fractal, speed multiplier −3"><br><code>fractal-4-fold.spiro</code><br>Fractal, speed multiplier −3</td>
-    <td align="center" width="25%"><img src="docs/gallery/fractal-6-fold.svg" width="180" alt="Fractal, speed multiplier −5"><br><code>fractal-6-fold.spiro</code><br>Fractal, speed multiplier −5</td>
-    <td align="center" width="25%"><img src="docs/gallery/farris-6-fold.svg" width="180" alt="Farris's wheels on wheels: speeds 1, 7, −17"><br><code>farris-6-fold.spiro</code><br>Farris's wheels on wheels: speeds 1, 7, −17</td>
-    <td align="center" width="25%"><img src="docs/gallery/farris-5-fold.svg" width="180" alt="Farris-style: speeds 1, 6, −14"><br><code>farris-5-fold.spiro</code><br>Farris-style: speeds 1, 6, −14</td>
+    <td align="center" width="25%"><a href="EXAMPLES.md#fractal-4-fold"><img src="docs/gallery/fractal-4-fold.svg" width="180" alt="Fractal, speed multiplier −3"></a><br><code>fractal-4-fold.spiro</code><br>Fractal, speed multiplier −3</td>
+    <td align="center" width="25%"><a href="EXAMPLES.md#fractal-6-fold"><img src="docs/gallery/fractal-6-fold.svg" width="180" alt="Fractal, speed multiplier −5"></a><br><code>fractal-6-fold.spiro</code><br>Fractal, speed multiplier −5</td>
+    <td align="center" width="25%"><a href="EXAMPLES.md#farris-6-fold"><img src="docs/gallery/farris-6-fold.svg" width="180" alt="Farris's wheels on wheels: speeds 1, 7, −17"></a><br><code>farris-6-fold.spiro</code><br>Farris's wheels on wheels: speeds 1, 7, −17</td>
+    <td align="center" width="25%"><a href="EXAMPLES.md#farris-5-fold"><img src="docs/gallery/farris-5-fold.svg" width="180" alt="Farris-style: speeds 1, 6, −14"></a><br><code>farris-5-fold.spiro</code><br>Farris-style: speeds 1, 6, −14</td>
   </tr>
   <tr>
-    <td align="center" width="25%"><img src="docs/gallery/rosette.svg" width="180" alt="Three toy wheels in one ring"><br><code>rosette.spiro</code><br>Three toy wheels in one ring</td>
-    <td align="center" width="25%"><img src="docs/gallery/cusps.svg" width="180" alt="Deltoid, astroid and ellipse"><br><code>cusps.spiro</code><br>Deltoid, astroid and ellipse</td>
-    <td align="center" width="25%"><img src="docs/gallery/epicycloids.svg" width="180" alt="Cardioid and nephroid"><br><code>epicycloids.spiro</code><br>Cardioid and nephroid</td>
-    <td align="center" width="25%"><img src="docs/gallery/star.svg" width="180" alt="Five-pointed star from two arms"><br><code>star.spiro</code><br>Five-pointed star from two arms</td>
+    <td align="center" width="25%"><a href="EXAMPLES.md#rosette"><img src="docs/gallery/rosette.svg" width="180" alt="Three toy wheels in one ring"></a><br><code>rosette.spiro</code><br>Three toy wheels in one ring</td>
+    <td align="center" width="25%"><a href="EXAMPLES.md#cusps"><img src="docs/gallery/cusps.svg" width="180" alt="Deltoid, astroid and ellipse"></a><br><code>cusps.spiro</code><br>Deltoid, astroid and ellipse</td>
+    <td align="center" width="25%"><a href="EXAMPLES.md#epicycloids"><img src="docs/gallery/epicycloids.svg" width="180" alt="Cardioid and nephroid"></a><br><code>epicycloids.spiro</code><br>Cardioid and nephroid</td>
+    <td align="center" width="25%"><a href="EXAMPLES.md#star"><img src="docs/gallery/star.svg" width="180" alt="Five-pointed star from two arms"></a><br><code>star.spiro</code><br>Five-pointed star from two arms</td>
   </tr>
   <tr>
-    <td align="center" width="25%"><img src="docs/gallery/toy.svg" width="180" alt="Two toy wheels in a 96-tooth ring"><br><code>toy.spiro</code><br>Two toy wheels in a 96-tooth ring</td>
-    <td align="center" width="25%"><img src="docs/gallery/fractal.svg" width="180" alt="The README's fractal"><br><code>fractal.spiro</code><br>The README's fractal</td>
-    <td align="center" width="25%"><img src="docs/gallery/readme.svg" width="180" alt="The README example: classic, toy and fractal"><br><code>readme.spiro</code><br>The README example: classic, toy and fractal</td>
+    <td align="center" width="25%"><a href="EXAMPLES.md#toy"><img src="docs/gallery/toy.svg" width="180" alt="Two toy wheels in a 96-tooth ring"></a><br><code>toy.spiro</code><br>Two toy wheels in a 96-tooth ring</td>
+    <td align="center" width="25%"><a href="EXAMPLES.md#fractal"><img src="docs/gallery/fractal.svg" width="180" alt="The README's fractal"></a><br><code>fractal.spiro</code><br>The README's fractal</td>
+    <td align="center" width="25%"><a href="EXAMPLES.md#readme"><img src="docs/gallery/readme.svg" width="180" alt="The README example: classic, toy and fractal"></a><br><code>readme.spiro</code><br>The README example: classic, toy and fractal</td>
   </tr>
 </table>
 
@@ -243,6 +244,7 @@ The types can't express these, so they are reported as errors:
 - `examples/`: example `.spiro` files. A test checks that every one of them
   parses and evaluates.
 - `docs/gallery/`: an SVG of each example, shown in the gallery above.
+- `EXAMPLES.md`: each example's picture next to its full source.
 
 ## Plan
 
