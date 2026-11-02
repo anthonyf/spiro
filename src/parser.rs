@@ -1,4 +1,8 @@
-use crate::lexer::{Token, TokenKind};
+use crate::{
+    document::{Pen, Shape},
+    lexer::{Token, TokenKind},
+    spirograph::Arm,
+};
 use macroquad::prelude::Color;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -58,6 +62,15 @@ impl<'a> Parser<'a> {
             return Ok(());
         }
         Err(unexpected_token(token, &format!("word '{text}'")))
+    }
+
+    fn peek_word(&self, text: &str) -> bool {
+        if let Some(token) = self.peek() {
+            if let TokenKind::Word(word) = &token.kind {
+                return word == text;
+            }
+        }
+        false
     }
 
     fn expect(&mut self, kind: &TokenKind) -> Result<(), ParseError> {
@@ -167,6 +180,69 @@ impl<'a> Parser<'a> {
             Err(unexpected_token(token, "color"))
         }
     }
+
+    fn pen(&mut self) -> Result<Pen, ParseError> {
+        self.expect_word("pen")?;
+        let color = self.color()?;
+        let thickness = self.decimal()?;
+        Ok(Pen { color, thickness })
+    }
+
+    fn arm(&mut self) -> Result<Arm, ParseError> {
+        self.expect_word("arm")?;
+        let length = self.decimal()?;
+        self.expect_word("speed")?;
+        let speed = self.integer()?;
+
+        let phase = if self.peek_word("phase") {
+            self.expect_word("phase")?;
+            self.decimal()?
+        } else {
+            0.0
+        };
+
+        Ok(Arm {
+            length,
+            speed,
+            phase,
+        })
+    }
+
+    fn unsigned(&mut self) -> Result<u32, ParseError> {
+        let token = self.peek_or_unexpected_end("unsigned integer")?;
+
+        if let TokenKind::Integer(i) = &token.kind {
+            let n = u32::try_from(*i).map_err(|_| unexpected_token(token, "unsigned integer"))?;
+            self.next();
+            Ok(n)
+        } else {
+            Err(unexpected_token(token, "unsigned integer"))
+        }
+    }
+
+    fn toy(&mut self) -> Result<Shape, ParseError> {
+        self.expect_word("toy")?;
+        self.expect_word("ring")?;
+        let ring = self.unsigned()?;
+        self.expect_word("wheel")?;
+        let wheel = self.unsigned()?;
+        self.expect_word("hole")?;
+        let hole = self.decimal()?;
+        Ok(Shape::Toy { ring, wheel, hole })
+    }
+
+    fn classic(&mut self) -> Result<Shape, ParseError> {
+        self.expect_word("classic")?;
+        self.expect(&TokenKind::OpenBrace)?;
+        self.expect_word("ring")?;
+        let ring = self.decimal()?;
+        let mut arms = Vec::new();
+        while self.peek_word("arm") {
+            arms.push(self.arm()?);
+        }
+        self.expect(&TokenKind::CloseBrace)?;
+        Ok(Shape::Classic { ring, arms })
+    }
 }
 
 #[cfg(test)]
@@ -243,5 +319,113 @@ mod tests {
                 },
             }
         )
+    }
+
+    #[test]
+    fn test_parser_pen() {
+        let tokens = lex("pen red 2.5").unwrap();
+        let mut parser = Parser::new(&tokens);
+        let pen = parser.pen().unwrap();
+        assert_eq!(pen.color, macroquad::prelude::RED);
+        assert_eq!(pen.thickness, 2.5);
+    }
+
+    #[test]
+    fn test_parser_arm_no_phase() {
+        let tokens = lex("arm 10.0 speed 5").unwrap();
+        let mut parser = Parser::new(&tokens);
+        let arm = parser.arm().unwrap();
+        assert_eq!(arm.length, 10.0);
+        assert_eq!(arm.speed, 5);
+        assert_eq!(arm.phase, 0.0);
+    }
+
+    #[test]
+    fn test_parser_arm_with_phase() {
+        let tokens = lex("arm 10.0 speed 5 phase 1.57").unwrap();
+        let mut parser = Parser::new(&tokens);
+        let arm = parser.arm().unwrap();
+        assert_eq!(arm.length, 10.0);
+        assert_eq!(arm.speed, 5);
+        assert_eq!(arm.phase, 1.57);
+    }
+
+    #[test]
+    fn test_parser_toy() {
+        let tokens = lex("toy ring 96 wheel 36 hole 28.8").unwrap();
+        let mut parser = Parser::new(&tokens);
+        let shape = parser.toy().unwrap();
+        assert_eq!(
+            shape,
+            Shape::Toy {
+                ring: 96,
+                wheel: 36,
+                hole: 28.8
+            }
+        );
+    }
+
+    #[test]
+    fn test_parser_toy_invalid() {
+        let tokens = lex("toy ring -96 wheel 36 hole 28.8").unwrap();
+        let mut parser = Parser::new(&tokens);
+        let error = parser.toy().unwrap_err();
+        assert_eq!(
+            error,
+            ParseError::UnexpectedToken {
+                expected: "unsigned integer".to_string(),
+                found: Token {
+                    kind: TokenKind::Integer(-96),
+                    position: Position {
+                        line: 1,
+                        column: 10
+                    }
+                },
+            }
+        );
+    }
+
+    #[test]
+    fn test_parser_classic() {
+        let tokens = lex("classic {
+    ring 96
+    arm 60 speed 3
+    arm 28.8 speed -5
+  }")
+        .unwrap();
+        let mut parser = Parser::new(&tokens);
+        let shape = parser.classic().unwrap();
+        assert_eq!(
+            shape,
+            Shape::Classic {
+                ring: 96.0,
+                arms: vec![
+                    Arm {
+                        length: 60.0,
+                        speed: 3,
+                        phase: 0.0
+                    },
+                    Arm {
+                        length: 28.8,
+                        speed: -5,
+                        phase: 0.0
+                    }
+                ]
+            }
+        );
+    }
+
+    #[test]
+    fn test_parser_classic_no_arms() {
+        let tokens = lex("classic { ring 96 }").unwrap();
+        let mut parser = Parser::new(&tokens);
+        let shape = parser.classic().unwrap();
+        assert_eq!(
+            shape,
+            Shape::Classic {
+                ring: 96.0,
+                arms: vec![]
+            }
+        );
     }
 }

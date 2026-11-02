@@ -28,7 +28,7 @@ pub struct Pen {
     pub thickness: f32,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Shape {
     Classic {
         ring: f32,

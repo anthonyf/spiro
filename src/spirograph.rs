@@ -1,7 +1,7 @@
 use std::f32::consts::TAU;
 use std::fmt;
 
-#[derive(Debug, Clone, Copy, Default)]
+#[derive(Debug, Clone, Copy, Default, PartialEq)]
 pub struct Arm {
     pub length: f32,
     pub speed: i32,
